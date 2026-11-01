@@ -8,12 +8,14 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: #212529;
 }
 
-.title-app, .title-panel, .month-header-title {
-  font-family: 'Oswald', sans-serif;
+.title-app,
+.title-panel,
+.month-header-title {
+  font-family: "Oswald", sans-serif;
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
@@ -78,16 +80,16 @@ body {
   cursor: default;
 }
 
-/* Estado de Dia Agendado (Amarelo vibrante conforme mockup) */
+/* Estado de Dia Marcado no Calendário */
 .cal-day.has-event {
   background-color: var(--app-yellow) !important;
   color: #000000 !important;
   border-color: var(--app-yellow-dark) !important;
   font-weight: 700;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Painel de Agendamentos (Lado Direito) --- */
+/* --- Painel de Agendamentos (Barra Lateral Direita) --- */
 .appointment-card {
   background-color: var(--app-yellow);
   border: 1px solid #d49f05;
@@ -100,12 +102,13 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Grelha do resumo: horário adaptável e coluna de prioridade padronizada */
 .appointment-summary {
   display: grid;
-  grid-template-columns: 34px 44px 34px 1fr auto;
+  grid-template-columns: 32px 38px auto 1fr 58px;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 6px;
+  padding: 6px 8px;
   cursor: pointer;
 }
 
@@ -113,38 +116,61 @@ body {
   background: rgba(255, 255, 255, 0.45);
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 3px;
-  padding: 2px 4px;
+  padding: 2px 6px;
   font-size: 0.72rem;
   font-weight: 700;
   text-align: center;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
 }
 
 .appointment-title {
   font-weight: 700;
   font-size: 0.85rem;
   text-transform: uppercase;
-  padding-left: 6px;
+  padding-left: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Emblema de prioridade com largura uniforme e texto centrado */
 .priority-badge {
   font-size: 0.65rem;
   font-weight: 800;
-  padding: 3px 6px;
+  padding: 3px 0;
   border-radius: 3px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  width: 58px;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
-.priority-alta { background-color: #fca5a5; color: #991b1b; }
-.priority-media { background-color: #fde047; color: #854d0e; }
-.priority-baixa { background-color: #86efac; color: #166534; }
-.priority-none { background-color: #e2e8f0; color: #475569; }
+.priority-alta {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+.priority-media {
+  background-color: #fde047;
+  color: #854d0e;
+}
+.priority-baixa {
+  background-color: #86efac;
+  color: #166534;
+}
+.priority-none {
+  background-color: #e2e8f0;
+  color: #475569;
+}
 
-/* Corpo Expansível */
+/* Corpo Expansível do Agendamento */
 .appointment-details {
   background-color: rgba(255, 255, 255, 0.35);
   border-top: 1px dashed rgba(0, 0, 0, 0.15);
@@ -155,7 +181,7 @@ body {
 .details-label {
   font-weight: 700;
   font-size: 0.72rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 2px;
 }
 
@@ -167,10 +193,10 @@ body {
   word-break: break-word;
 }
 
-/* Regras de Impressão e PDF */
+/* Regras de Impressão e Renderização para PDF */
 @media print {
   body {
-    background: #fff !important;
+    background: #ffffff !important;
   }
   [data-html2canvas-ignore="true"] {
     display: none !important;
