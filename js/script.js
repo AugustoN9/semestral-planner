@@ -33,6 +33,8 @@ const CORES_CATEGORIAS = {
   recesso: "#ffcf29",
   dissidio: "#ffaf24",
   saude: "#d7f3e8",
+  viagem: "#bae6fd",
+  passeio: "#e9d5ff",
   feriado: "#ffd8d8",
   geral: "#cbd5e1"
 };
@@ -43,20 +45,24 @@ let modalEventoInstance = null;
 let modalConfigInstance = null;
 let cardsColapsados = true;
 
-// Inicialização Assíncrona
+// Inicialização Assíncrona com Proteção Global
 document.addEventListener("DOMContentLoaded", async () => {
   modalEventoInstance = new bootstrap.Modal(document.getElementById("modalEvento"));
   modalConfigInstance = new bootstrap.Modal(document.getElementById("modalConfiguracoes"));
 
   atualizarConfiguracaoSemestre(configSemestre.anoInicio, configSemestre.mesInicio, false);
 
-  await Promise.all([
-    carregarAgendamentosIniciais(),
-    carregarFeriadosDosAnosDoSemestre()
-  ]);
-
-  renderizarMeses();
-  renderizarAgendamentos();
+  try {
+    await Promise.all([
+      carregarAgendamentosIniciais(),
+      carregarFeriadosDosAnosDoSemestre()
+    ]);
+  } catch (err) {
+    console.error("Falha ao inicializar dados assíncronos:", err);
+  } finally {
+    renderizarMeses();
+    renderizarAgendamentos();
+  }
 
   // Eventos de formulários e botões
   document.getElementById("formAgendamento").addEventListener("submit", salvarAgendamento);
@@ -84,20 +90,19 @@ function atualizarConfiguracaoSemestre(anoInicio, mesInicio, persistir = true) {
 
   MESES = gerarConfiguracaoSemestre(configSemestre.anoInicio, configSemestre.mesInicio, 6);
 
-  // Atualiza título da aplicação com o intervalo
   const primeiroMesAno = MESES[0];
   const ultimoMesAno = MESES[MESES.length - 1];
-  const anoFinal = ultimoMesAno.ano;
-  const textoAnos = primeiroMesAno.ano === anoFinal ? `${primeiroMesAno.ano}` : `${primeiroMesAno.ano}-${anoFinal}`;
-  
+  const textoAnos = primeiroMesAno.ano === ultimoMesAno.ano ? `${primeiroMesAno.ano}` : `${primeiroMesAno.ano}-${ultimoMesAno.ano}`;
+
   const elTitulo = document.getElementById("tituloApp");
   if (elTitulo) {
     elTitulo.textContent = `PLANEJAMENTO SEMESTRAL ${textoAnos}`;
   }
 
-  // Sincroniza campos do modal de configurações
-  document.getElementById("configMesInicio").value = configSemestre.mesInicio;
-  document.getElementById("configAnoInicio").value = configSemestre.anoInicio;
+  const elMes = document.getElementById("configMesInicio");
+  const elAno = document.getElementById("configAnoInicio");
+  if (elMes) elMes.value = configSemestre.mesInicio;
+  if (elAno) elAno.value = configSemestre.anoInicio;
 }
 
 // Salva e aplica novas configurações de início de semestre
@@ -112,36 +117,72 @@ async function aplicarNovasConfiguracoes(e) {
   renderizarMeses();
   renderizarAgendamentos();
   modalConfigInstance.hide();
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Semestre Atualizado',
+    text: 'A nova sequência de meses foi recalculada com sucesso!',
+    timer: 1600,
+    showConfirmButton: false
+  });
 }
 
-// 2. Carregamento dos Agendamentos: LocalStorage ou dados/agendamentos.json
+// 2. Carregamento Resiliente: Suporta Array simples ou Objeto de Backup exportado
 async function carregarAgendamentosIniciais() {
   const dadosLocais = localStorage.getItem("planejamento_2026_2027");
   if (dadosLocais) {
-    agendamentos = JSON.parse(dadosLocais);
-    return;
+    try {
+      const parsed = JSON.parse(dadosLocais);
+      agendamentos = Array.isArray(parsed) ? parsed : (parsed.agendamentos || []);
+      if (Array.isArray(agendamentos) && agendamentos.length > 0) return;
+    } catch (e) {
+      console.warn("Aviso ao ler localStorage:", e);
+    }
   }
 
   try {
-    const resposta = await fetch("dados/agendamentos.json");
-    if (!resposta.ok) throw new Error("Não foi possível carregar dados/agendamentos.json");
-    agendamentos = await resposta.json();
+    const resposta = await fetch("dados/agendamentos.json", { cache: "no-cache" });
+    if (!resposta.ok) throw new Error("Status HTTP " + resposta.status);
+
+    const dados = await resposta.json();
+
+    if (Array.isArray(dados)) {
+      agendamentos = dados;
+    } else if (dados && Array.isArray(dados.agendamentos)) {
+      agendamentos = dados.agendamentos;
+      if (dados.configSemestre) {
+        atualizarConfiguracaoSemestre(dados.configSemestre.anoInicio, dados.configSemestre.mesInicio, true);
+      }
+    } else {
+      agendamentos = [];
+    }
+
     localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
   } catch (erro) {
-    console.warn("Utilizando lista vazia após tentativa de fetch:", erro);
-    agendamentos = [];
+    console.warn("Utilizando dados padrão de contingência:", erro);
+    agendamentos = [
+      { id: "ag-1", titulo: "CONSULTA MEDICA", categoria: "saude", dataInicio: "2026-12-07", dataFim: "", horario: "09:30", prioridade: "alta", detalhes: "Consulta de rotina." },
+      { id: "ag-2", titulo: "RECESSO DE FIM DE ANO", categoria: "recesso", dataInicio: "2026-12-28", dataFim: "2027-01-01", horario: "", prioridade: "none", detalhes: "Recesso institucional coletivo." },
+      { id: "ag-3", titulo: "FÉRIAS FABIANA", categoria: "ferias", dataInicio: "2026-12-28", dataFim: "2027-01-16", horario: "", prioridade: "none", detalhes: "Período de férias de Fabiana." },
+      { id: "ag-4", titulo: "FÉRIAS AUGUSTO", categoria: "ferias", dataInicio: "2027-01-04", dataFim: "2027-01-13", horario: "", prioridade: "none", detalhes: "Período de férias do Augusto." },
+      { id: "ag-5", titulo: "DISSIDIO", categoria: "dissidio", dataInicio: "2026-11-27", dataFim: "", horario: "", prioridade: "none", detalhes: "Homologação de dissídio." }
+    ];
   }
 }
 
-// 3. Feriados Nacionais dinâmicos para os anos presentes no semestre ativo
+// 3. Feriados Nacionais dinâmicos
 async function carregarFeriadosDosAnosDoSemestre() {
   const anosDoSemestre = [...new Set(MESES.map(m => m.ano))];
   const chaveCache = `feriados_${anosDoSemestre.join("_")}`;
   const cache = localStorage.getItem(chaveCache);
 
   if (cache) {
-    feriadosNacionais = JSON.parse(cache);
-    return;
+    try {
+      feriadosNacionais = JSON.parse(cache);
+      return;
+    } catch (e) {
+      console.warn("Erro ao ler cache de feriados:", e);
+    }
   }
 
   try {
@@ -152,7 +193,7 @@ async function carregarFeriadosDosAnosDoSemestre() {
 
     const mapa = {};
     resultados.flat().forEach(item => {
-      if (item.date && item.name) {
+      if (item && item.date && item.name) {
         mapa[item.date] = item.name;
       }
     });
@@ -177,6 +218,7 @@ async function carregarFeriadosDosAnosDoSemestre() {
 // Renderização dos Meses
 function renderizarMeses() {
   const container = document.getElementById("calendariosContainer");
+  if (!container) return;
   container.innerHTML = "";
 
   MESES.forEach(config => {
@@ -271,8 +313,7 @@ function tratarCliqueNoDia(dataIso) {
       if (cardEl) {
         const collapseEl = document.getElementById(`collapse-${evento.id}`);
         if (collapseEl) {
-          const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
-          bsCollapse.show();
+          bootstrap.Collapse.getOrCreateInstance(collapseEl).show();
         }
 
         if (index === 0) {
@@ -291,6 +332,7 @@ function tratarCliqueNoDia(dataIso) {
 }
 
 function obterEventosDoDia(dataIso) {
+  if (!Array.isArray(agendamentos)) return [];
   return agendamentos.filter(item => {
     const inicio = item.dataInicio;
     const fim = item.dataFim || item.dataInicio;
@@ -298,20 +340,17 @@ function obterEventosDoDia(dataIso) {
   });
 }
 
-// 4. Alterna Colapsar / Expandir Todos os Cards
 function alternarTodosCards() {
   const collapses = document.querySelectorAll("#listaAgendamentos .appointment-details");
   const icone = document.getElementById("iconeAlternarCards");
 
   if (cardsColapsados) {
-    // Abre todos
     collapses.forEach(el => bootstrap.Collapse.getOrCreateInstance(el).show());
-    icone.className = "bi bi-arrows-expand";
+    if (icone) icone.className = "bi bi-arrows-expand";
     cardsColapsados = false;
   } else {
-    // Fecha todos
     collapses.forEach(el => bootstrap.Collapse.getOrCreateInstance(el).hide());
-    icone.className = "bi bi-arrows-collapse";
+    if (icone) icone.className = "bi bi-arrows-collapse";
     cardsColapsados = true;
   }
 }
@@ -319,12 +358,12 @@ function alternarTodosCards() {
 // Renderização dos Agendamentos
 function renderizarAgendamentos() {
   const container = document.getElementById("listaAgendamentos");
+  if (!container) return;
   container.innerHTML = "";
 
   const exibirFeriados = document.getElementById("checkExibirFeriados")?.checked ?? true;
-  let listaCompleta = [...agendamentos];
+  let listaCompleta = Array.isArray(agendamentos) ? [...agendamentos] : [];
 
-  // Limites dinâmicos do semestre atual para filtro de feriados
   const primeiroMes = MESES[0];
   const ultimoMes = MESES[MESES.length - 1];
   const dataLimiteInicio = `${primeiroMes.ano}-${String(primeiroMes.mes + 1).padStart(2, '0')}-01`;
@@ -349,10 +388,10 @@ function renderizarAgendamentos() {
     listaCompleta = listaCompleta.concat(feriadosDoSemestre);
   }
 
-  const ordenacao = document.getElementById("filtroOrdenacao").value;
+  const ordenacao = document.getElementById("filtroOrdenacao")?.value || "data-asc";
   const itensOrdenados = listaCompleta.sort((a, b) => {
-    if (ordenacao === "data-asc") return a.dataInicio.localeCompare(b.dataInicio);
-    if (ordenacao === "data-desc") return b.dataInicio.localeCompare(a.dataInicio);
+    if (ordenacao === "data-asc") return (a.dataInicio || "").localeCompare(b.dataInicio || "");
+    if (ordenacao === "data-desc") return (b.dataInicio || "").localeCompare(a.dataInicio || "");
     if (ordenacao === "categoria") return (a.categoria || "").localeCompare(b.categoria || "");
     if (ordenacao === "prioridade") {
       const peso = { alta: 3, media: 2, baixa: 1, none: 0 };
@@ -371,16 +410,16 @@ function renderizarAgendamentos() {
     card.className = `appointment-card cat-theme-${item.categoria || 'geral'}`;
     card.id = `card-${item.id}`;
 
-    const pInicio = item.dataInicio.split("-");
-    const diaIni = pInicio[2];
-    const mesIni = NOMES_MESES_ABREV[parseInt(pInicio[1], 10) - 1];
+    const pInicio = (item.dataInicio || "").split("-");
+    const diaIni = pInicio[2] || "--";
+    const mesIni = pInicio[1] ? NOMES_MESES_ABREV[parseInt(pInicio[1], 10) - 1] : "--";
 
     let blocosDataHtml = "";
 
     if (item.dataFim && item.dataFim !== item.dataInicio) {
       const pFim = item.dataFim.split("-");
-      const diaFim = pFim[2];
-      const mesFim = NOMES_MESES_ABREV[parseInt(pFim[1], 10) - 1];
+      const diaFim = pFim[2] || "--";
+      const mesFim = pFim[1] ? NOMES_MESES_ABREV[parseInt(pFim[1], 10) - 1] : "--";
       const diferencaDias = calcularDiferencaDias(item.dataInicio, item.dataFim);
 
       blocosDataHtml = `
@@ -439,6 +478,7 @@ function renderizarAgendamentos() {
 }
 
 function calcularDiferencaDias(dataIni, dataFim) {
+  if (!dataIni || !dataFim) return 1;
   const [ano1, mes1, dia1] = dataIni.split("-").map(Number);
   const [ano2, mes2, dia2] = dataFim.split("-").map(Number);
   const d1 = new Date(ano1, mes1 - 1, dia1);
@@ -449,8 +489,9 @@ function calcularDiferencaDias(dataIni, dataFim) {
 
 window.alternarDetalhes = function(id) {
   const el = document.getElementById(`collapse-${id}`);
-  const bsCollapse = bootstrap.Collapse.getOrCreateInstance(el);
-  bsCollapse.toggle();
+  if (el) {
+    bootstrap.Collapse.getOrCreateInstance(el).toggle();
+  }
 };
 
 function abrirModalParaData(dataIso) {
@@ -480,7 +521,11 @@ function salvarAgendamento(e) {
   const detalhes = document.getElementById("detalhes").value.trim();
 
   if (dataFim && dataFim < dataInicio) {
-    alert("A data final não pode ser anterior à data inicial.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Data Inválida',
+      text: 'A data final não pode ser anterior à data inicial!'
+    });
     return;
   }
 
@@ -498,6 +543,14 @@ function salvarAgendamento(e) {
 
   renderizarMeses();
   renderizarAgendamentos();
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Sucesso',
+    text: 'Agendamento salvo com sucesso!',
+    timer: 1400,
+    showConfirmButton: false
+  });
 }
 
 window.editarAgendamento = function(id) {
@@ -518,13 +571,32 @@ window.editarAgendamento = function(id) {
 };
 
 window.excluirAgendamento = function(id) {
-  if (!confirm("Deseja realmente remover este agendamento?")) return;
+  Swal.fire({
+    title: 'Excluir Agendamento?',
+    text: 'Esta ação não poderá ser desfeita.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sim, excluir',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      agendamentos = agendamentos.filter(ev => ev.id !== id);
+      localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
 
-  agendamentos = agendamentos.filter(ev => ev.id !== id);
-  localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
+      renderizarMeses();
+      renderizarAgendamentos();
 
-  renderizarMeses();
-  renderizarAgendamentos();
+      Swal.fire({
+        icon: 'success',
+        title: 'Excluído!',
+        text: 'O agendamento foi removido.',
+        timer: 1300,
+        showConfirmButton: false
+      });
+    }
+  });
 };
 
 function formatarDataBr(dataIso) {
@@ -535,7 +607,7 @@ function formatarDataBr(dataIso) {
 
 function baixarArquivoJSON() {
   const dados = {
-    versao: "2.4",
+    versao: "3.0",
     exportadoEm: new Date().toISOString(),
     configSemestre: configSemestre,
     totalAgendamentos: agendamentos.length,
@@ -555,12 +627,20 @@ function baixarArquivoJSON() {
   URL.revokeObjectURL(url);
 }
 
-// Geração de PDF em Folha Única A4 Paisagem (60% / 40%)
+// Geração de PDF: Expande apenas os agendamentos normais; feriados permanecem fechados
 function exportarPDF() {
   baixarArquivoJSON();
 
   const elemento = document.getElementById("exportArea");
   elemento.classList.add("pdf-single-page");
+
+  // Abre exclusivamente os detalhes dos compromissos particulares
+  const collapsesUsuario = document.querySelectorAll('.appointment-card:not(.cat-theme-feriado) .appointment-details');
+  collapsesUsuario.forEach(el => el.classList.add('show'));
+
+  // Garante que os feriados permaneçam recolhidos
+  const collapsesFeriados = document.querySelectorAll('.cat-theme-feriado .appointment-details');
+  collapsesFeriados.forEach(el => el.classList.remove('show'));
 
   const opcoes = {
     margin: [4, 4, 4, 4],
@@ -583,9 +663,12 @@ function exportarPDF() {
 
   html2pdf().set(opcoes).from(elemento).save().then(() => {
     elemento.classList.remove("pdf-single-page");
+    // Restaura o estado anterior dos agendamentos
+    collapsesUsuario.forEach(el => el.classList.remove('show'));
   }).catch((err) => {
     console.error("Erro na geração do PDF:", err);
     elemento.classList.remove("pdf-single-page");
+    collapsesUsuario.forEach(el => el.classList.remove('show'));
   });
 }
 
@@ -603,18 +686,40 @@ function importarBackupJSON(event) {
         throw new Error("Estrutura do ficheiro JSON inválida.");
       }
 
-      if (confirm(`Deseja importar ${listaImportada.length} agendamentos? Isso substituirá a lista atual.`)) {
-        agendamentos = listaImportada;
-        if (conteudo.configSemestre) {
-          atualizarConfiguracaoSemestre(conteudo.configSemestre.anoInicio, conteudo.configSemestre.mesInicio, true);
+      Swal.fire({
+        title: 'Importar Dados?',
+        text: `Deseja importar ${listaImportada.length} agendamentos? Isso substituirá a lista atual.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sim, importar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          agendamentos = listaImportada;
+          if (conteudo.configSemestre) {
+            atualizarConfiguracaoSemestre(conteudo.configSemestre.anoInicio, conteudo.configSemestre.mesInicio, true);
+          }
+          localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
+          renderizarMeses();
+          renderizarAgendamentos();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Importado com Sucesso!',
+            text: 'Os agendamentos foram restaurados.',
+            timer: 1600,
+            showConfirmButton: false
+          });
         }
-        localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
-        renderizarMeses();
-        renderizarAgendamentos();
-        alert("Agendamentos importados com sucesso!");
-      }
+      });
     } catch (erro) {
-      alert("Falha ao ler o ficheiro JSON. Certifique-se de que é um backup válido.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro na Leitura',
+        text: 'Certifique-se de que é um arquivo JSON de backup válido.'
+      });
       console.error(erro);
     } finally {
       event.target.value = "";

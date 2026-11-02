@@ -14,6 +14,11 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
       rel="stylesheet"
     />
+    <!-- SweetAlert2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
     <!-- Google Fonts: Oswald / Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,28 +27,28 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=3.0" />
   </head>
   <body class="bg-light">
-    <div class="container-fluid py-3 px-4" id="exportArea">
+    <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
       <!-- Cabeçalho Principal -->
       <header
-        class="d-flex flex-wrap justify-content-between align-items-center pb-2 mb-3 border-bottom"
+        class="d-flex flex-wrap justify-content-between align-items-center pb-2 mb-3 border-bottom gap-2"
       >
         <div>
           <h2 class="title-app mb-0" id="tituloApp">PLANEJAMENTO SEMESTRAL</h2>
           <span class="text-muted small"
-            >Férias, Folgas, Recessos, Viagens e Feriados</span
+            >Férias, Folgas, Recessos, Viagens, Passeios e Feriados</span
           >
         </div>
         <div
-          class="d-flex gap-2 align-items-center mt-2 mt-md-0"
+          class="d-flex flex-wrap gap-2 align-items-center"
           data-html2canvas-ignore="true"
         >
-          <!-- 1. Botão de Configurações (à esquerda de Novo Agendamento) -->
+          <!-- Configurações do Semestre -->
           <button
             id="btnConfiguracoes"
-            class="btn btn-outline-dark fw-semibold shadow-sm"
+            class="btn btn-outline-dark btn-sm fw-semibold shadow-sm"
             data-bs-toggle="modal"
             data-bs-target="#modalConfiguracoes"
             title="Definir mês e ano inicial do semestre"
@@ -53,7 +58,7 @@
 
           <button
             id="btnNovoAgendamento"
-            class="btn btn-warning fw-semibold shadow-sm"
+            class="btn btn-warning btn-sm fw-semibold shadow-sm"
             data-bs-toggle="modal"
             data-bs-target="#modalEvento"
           >
@@ -68,7 +73,7 @@
           />
           <button
             id="btnImportarJSON"
-            class="btn btn-outline-secondary fw-semibold shadow-sm"
+            class="btn btn-outline-secondary btn-sm fw-semibold shadow-sm"
             title="Restaurar backup JSON"
           >
             <i class="bi bi-upload me-1"></i> Importar JSON
@@ -76,7 +81,7 @@
 
           <button
             id="btnExportarPDF"
-            class="btn btn-dark fw-semibold shadow-sm"
+            class="btn btn-dark btn-sm fw-semibold shadow-sm"
             title="Descarrega PDF em folha única e backup JSON"
           >
             <i class="bi bi-file-earmark-pdf-fill me-1"></i> Gerar PDF + Baixar
@@ -86,8 +91,8 @@
       </header>
 
       <div class="row g-3" id="conteudoPrincipal">
-        <!-- Secção dos Meses (60% no PDF) -->
-        <section class="col-xl-8 col-lg-7" id="colunaMeses">
+        <!-- Secção dos Meses -->
+        <section class="col-12 col-xl-7 col-lg-7" id="colunaMeses">
           <div
             class="row row-cols-1 row-cols-md-2 g-2"
             id="calendariosContainer"
@@ -96,8 +101,8 @@
           </div>
         </section>
 
-        <!-- Painel de Agendamentos (40% no PDF) -->
-        <aside class="col-xl-4 col-lg-5" id="colunaAgendamentos">
+        <!-- Painel de Agendamentos -->
+        <aside class="col-12 col-xl-5 col-lg-5" id="colunaAgendamentos">
           <div
             class="card shadow-sm border-0 schedule-sidebar sticky-top"
             style="top: 15px"
@@ -107,7 +112,7 @@
             >
               <h5 class="title-panel mb-0">AGENDAMENTOS</h5>
               <div
-                class="d-flex align-items-center gap-2"
+                class="d-flex flex-wrap align-items-center gap-2"
                 data-html2canvas-ignore="true"
               >
                 <!-- Switch de Feriados -->
@@ -125,7 +130,7 @@
                   >
                 </div>
 
-                <!-- 2. Botão de Colapsar / Expandir Todos os Cards (ao lado da Ordem) -->
+                <!-- Alternar Colapsar / Expandir Todos os Cards -->
                 <button
                   id="btnAlternarTodosCards"
                   class="btn btn-sm btn-outline-secondary py-1 px-2"
@@ -174,7 +179,7 @@
         <div class="modal-content">
           <form id="formConfiguracoes">
             <div class="modal-header bg-dark text-white">
-              <h5 class="modal-title" id="modalConfiguracoesLabel">
+              <h5 class="modal-title fs-6" id="modalConfiguracoesLabel">
                 <i class="bi bi-gear-fill me-1"></i> Período Semestral
               </h5>
               <button
@@ -223,8 +228,8 @@
                 />
               </div>
               <div class="text-muted small mt-2">
-                A aplicação gerará automaticamente a sequência de 6 meses a
-                partir da data definida.
+                A aplicação recalculará automaticamente os 6 meses e buscará os
+                feriados correspondentes.
               </div>
             </div>
             <div class="modal-footer bg-light p-2">
@@ -257,7 +262,7 @@
         <div class="modal-content">
           <form id="formAgendamento">
             <div class="modal-header bg-dark text-white">
-              <h5 class="modal-title" id="modalEventoLabel">
+              <h5 class="modal-title fs-6" id="modalEventoLabel">
                 Cadastrar Agendamento
               </h5>
               <button
@@ -278,7 +283,7 @@
                   type="text"
                   class="form-control"
                   id="titulo"
-                  placeholder="Ex: FÉRIAS FABIANA, CONSULTA MÉDICA..."
+                  placeholder="Ex: FÉRIAS FABIANA, VIAGEM SÃO PAULO..."
                   required
                 />
               </div>
@@ -295,6 +300,8 @@
                     <option value="saude">
                       Saúde / Consulta (Ciano Suave)
                     </option>
+                    <option value="viagem">Viagem (Azul Suave)</option>
+                    <option value="passeio">Passeio (Lavanda/Lilás)</option>
                     <option value="geral">Geral / Outros (Cinza)</option>
                   </select>
                 </div>
@@ -346,7 +353,7 @@
                   class="form-control"
                   id="detalhes"
                   rows="3"
-                  placeholder="Anotações adicionais, observações..."
+                  placeholder="Anotações adicionais, observações, itinerário..."
                 ></textarea>
               </div>
             </div>
@@ -369,8 +376,9 @@
 
     <!-- Bibliotecas JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Lógica Principal -->
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=3.0"></script>
   </body>
 </html>

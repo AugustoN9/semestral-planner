@@ -11,6 +11,10 @@
   --cat-dissidio-border: #db8c07;
   --cat-saude-bg: #d7f3e8;
   --cat-saude-border: #8fd4bd;
+  --cat-viagem-bg: #bae6fd;
+  --cat-viagem-border: #38bdf8;
+  --cat-passeio-bg: #e9d5ff;
+  --cat-passeio-border: #c084fc;
   --cat-feriado-bg: #ffd8d8;
   --cat-feriado-border: #f87171;
   --cat-geral-bg: #e2e8f0;
@@ -24,41 +28,41 @@ body {
 
 .title-app, .title-panel, .month-header-title {
   font-family: 'Oswald', sans-serif;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
 /* --- Meses e Calendários na Tela Principal --- */
 .month-card {
   background: #ffffff;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .month-header-title {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   color: #1a2a3a;
 }
 
-/* Grelha estrita de 7 colunas */
+/* Grelha de 7 colunas proporcionais */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2px;
 }
 
 .cal-header {
   background-color: var(--app-header-blue);
   color: #ffffff;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-align: center;
-  padding: 4px 0;
-  border-radius: 3px;
+  padding: 3px 0;
+  border-radius: 2px;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -67,9 +71,9 @@ body {
 .cal-day {
   background-color: var(--calendar-cell-bg);
   border: 1px solid var(--calendar-cell-border);
-  border-radius: 3px;
-  height: 30px;
-  font-size: 0.78rem;
+  border-radius: 2px;
+  height: 28px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #334155;
   display: flex;
@@ -85,7 +89,7 @@ body {
 .cal-day:hover:not(.empty) {
   transform: scale(1.05);
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .cal-day.empty {
@@ -94,14 +98,12 @@ body {
   cursor: default;
 }
 
-/* Destaque sutil de Feriado Nacional no Calendário */
 .cal-day.is-holiday {
   color: #b91c1c !important;
   font-weight: 800 !important;
   box-shadow: inset 0 -3px 0 0 #b91c1c;
 }
 
-/* Indicador de múltiplos agendamentos no mesmo dia */
 .cal-day.multiple-events::after {
   content: "";
   position: absolute;
@@ -113,12 +115,12 @@ body {
   border-radius: 50%;
 }
 
-/* --- Agendamentos Padrão (Férias, Recessos, Saúde, Dissídio) --- */
+/* --- Agendamentos Padrão --- */
 .appointment-card {
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.15);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, outline 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
 }
 
@@ -126,21 +128,22 @@ body {
 .cat-theme-recesso { background-color: var(--cat-recesso-bg); border-color: var(--cat-recesso-border); }
 .cat-theme-dissidio { background-color: var(--cat-dissidio-bg); border-color: var(--cat-dissidio-border); }
 .cat-theme-saude { background-color: var(--cat-saude-bg); border-color: var(--cat-saude-border); }
+.cat-theme-viagem { background-color: var(--cat-viagem-bg); border-color: var(--cat-viagem-border); }
+.cat-theme-passeio { background-color: var(--cat-passeio-bg); border-color: var(--cat-passeio-border); }
 .cat-theme-geral { background-color: var(--cat-geral-bg); border-color: var(--cat-geral-border); }
 
-/* --- Efeito de Destaque ao Clicar no Dia do Calendário --- */
 .appointment-card.highlight-selected {
   outline: 3px solid #0b5e82 !important;
   transform: scale(1.02);
   z-index: 5;
 }
 
-/* --- Cartão de Feriado Discreto / Menor Evidência --- */
+/* Cartão de Feriado Discreto */
 .appointment-card.cat-theme-feriado {
   background-color: #f8fafc !important;
   border: 1px dashed #cbd5e1 !important;
   box-shadow: none !important;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .appointment-card.cat-theme-feriado:hover {
@@ -183,34 +186,34 @@ body {
 }
 
 .tag-badge {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 3px;
   padding: 2px 5px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
+  min-width: 25px;
   color: #111827;
 }
 
 .appointment-title {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 .status-badge {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
   padding: 3px 0;
   border-radius: 3px;
@@ -226,7 +229,7 @@ body {
 }
 
 .appointment-details {
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0.5);
   border-top: 1px dashed rgba(0, 0, 0, 0.15);
   padding: 8px 10px;
   font-size: 0.8rem;
@@ -240,16 +243,35 @@ body {
 }
 
 .details-text {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   padding: 6px;
   border-radius: 3px;
-  min-height: 40px;
+  min-height: 35px;
   word-break: break-word;
 }
 
+/* Responsividade Mobile: tela < 768px */
+@media (max-width: 767.98px) {
+  .title-app {
+    font-size: 1.2rem;
+  }
+  .appointment-summary {
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .appointment-title {
+    width: 100%;
+    order: 3;
+    padding-left: 0;
+  }
+  .status-badge {
+    margin-left: auto;
+  }
+}
+
 /* ==========================================================================
-   ESTILOS EXCLUSIVOS PARA FOLHA ÚNICA A4 PAISAGEM (297mm x 210mm)
-   Garante 60% para os meses e 40% para os agendamentos sem quebras indesejadas
+   ESTILOS ESTITOS PARA FOLHA ÚNICA A4 PAISAGEM (297mm x 210mm)
+   Meses 56% e Agendamentos 44% (Elimina cortes horizontais e verticais)
    ========================================================================== */
 .pdf-single-page {
   width: 1120px !important;
@@ -258,7 +280,7 @@ body {
   max-height: 760px !important;
   overflow: hidden !important;
   background-color: #ffffff !important;
-  padding: 4px 12px !important;
+  padding: 4px 10px !important;
   margin: 0 auto !important;
   box-sizing: border-box !important;
 }
@@ -273,45 +295,45 @@ body {
 }
 
 .pdf-single-page #colunaMeses {
-  flex: 0 0 60% !important;
-  width: 60% !important;
-  max-width: 60% !important;
-  padding-right: 6px !important;
+  flex: 0 0 56% !important;
+  width: 56% !important;
+  max-width: 56% !important;
+  padding-right: 4px !important;
 }
 
 .pdf-single-page #colunaAgendamentos {
-  flex: 0 0 40% !important;
-  width: 40% !important;
-  max-width: 40% !important;
-  padding-left: 6px !important;
+  flex: 0 0 44% !important;
+  width: 44% !important;
+  max-width: 44% !important;
+  padding-left: 4px !important;
 }
 
 .pdf-single-page .month-card {
-  padding: 4px 5px !important;
+  padding: 3px 4px !important;
   border: 1px solid #d4d4d8 !important;
   border-radius: 4px !important;
   box-shadow: none !important;
 }
 
 .pdf-single-page .month-header-title {
-  font-size: 0.8rem !important;
+  font-size: 0.78rem !important;
   margin-bottom: 2px !important;
 }
 
 .pdf-single-page .calendar-grid {
-  gap: 2px !important;
-  grid-template-columns: repeat(7, calc(100% / 7 - 2px)) !important;
+  gap: 1.5px !important;
+  grid-template-columns: repeat(7, calc(100% / 7 - 1.5px)) !important;
 }
 
 .pdf-single-page .cal-header {
-  font-size: 0.58rem !important;
-  padding: 2px 0 !important;
-  line-height: 1.2 !important;
+  font-size: 0.56rem !important;
+  padding: 1.5px 0 !important;
+  line-height: 1.1 !important;
 }
 
 .pdf-single-page .cal-day {
-  height: 22px !important;
-  font-size: 0.68rem !important;
+  height: 20px !important;
+  font-size: 0.65rem !important;
   border-radius: 2px !important;
 }
 
@@ -322,7 +344,7 @@ body {
 }
 
 .pdf-single-page .card-header {
-  padding: 0 0 4px 0 !important;
+  padding: 0 0 3px 0 !important;
 }
 
 .pdf-single-page .title-panel {
@@ -340,25 +362,42 @@ body {
 
 .pdf-single-page .appointment-summary {
   padding: 2px 4px !important;
-  gap: 3px !important;
+  gap: 2.5px !important;
 }
 
 .pdf-single-page .tag-badge {
-  font-size: 0.6rem !important;
+  font-size: 0.58rem !important;
   padding: 1px 3px !important;
-  min-width: 20px !important;
+  min-width: 18px !important;
 }
 
 .pdf-single-page .appointment-title {
-  font-size: 0.7rem !important;
+  font-size: 0.68rem !important;
 }
 
 .pdf-single-page .status-badge {
-  font-size: 0.56rem !important;
-  width: 54px !important;
+  font-size: 0.54rem !important;
+  width: 52px !important;
   padding: 1px 0 !important;
 }
 
-.pdf-single-page .appointment-details {
+/* No PDF: Feriados NUNCA exibem detalhes; Agendamentos normais expandem */
+.pdf-single-page .cat-theme-feriado .appointment-details {
   display: none !important;
+}
+
+.pdf-single-page .appointment-card:not(.cat-theme-feriado) .appointment-details {
+  padding: 3px 5px !important;
+  font-size: 0.62rem !important;
+}
+
+.pdf-single-page .details-label {
+  font-size: 0.58rem !important;
+  margin-bottom: 1px !important;
+}
+
+.pdf-single-page .details-text {
+  padding: 2px 4px !important;
+  min-height: 16px !important;
+  font-size: 0.6rem !important;
 }
