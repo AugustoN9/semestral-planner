@@ -161,11 +161,11 @@ async function carregarAgendamentosIniciais() {
   } catch (erro) {
     console.warn("Utilizando dados padrão de contingência:", erro);
     agendamentos = [
-      { id: "ag-1", titulo: "CONSULTA MEDICA", categoria: "saude", dataInicio: "2026-12-07", dataFim: "", horario: "09:30", prioridade: "alta", detalhes: "Consulta de rotina." },
-      { id: "ag-2", titulo: "RECESSO DE FIM DE ANO", categoria: "recesso", dataInicio: "2026-12-28", dataFim: "2027-01-01", horario: "", prioridade: "none", detalhes: "Recesso institucional coletivo." },
-      { id: "ag-3", titulo: "FÉRIAS FABIANA", categoria: "ferias", dataInicio: "2026-12-28", dataFim: "2027-01-16", horario: "", prioridade: "none", detalhes: "Período de férias de Fabiana." },
-      { id: "ag-4", titulo: "FÉRIAS AUGUSTO", categoria: "ferias", dataInicio: "2027-01-04", dataFim: "2027-01-13", horario: "", prioridade: "none", detalhes: "Período de férias do Augusto." },
-      { id: "ag-5", titulo: "DISSIDIO", categoria: "dissidio", dataInicio: "2026-11-27", dataFim: "", horario: "", prioridade: "none", detalhes: "Homologação de dissídio." }
+      { id: "ag-1", titulo: "CONSULTA MEDICA", categoria: "saude", dataInicio: "2026-12-07", dataFim: "", horario: "09:30", prioridade: "alta", detalhes: "Consulta com Dr. Emanuel Eggers Turra CRM 29167. Mostrar exames." },
+      { id: "ag-2", titulo: "RECESSO DE FIM DE ANO", categoria: "recesso", dataInicio: "2026-12-28", dataFim: "2027-01-01", horario: "", prioridade: "none", detalhes: "Recesso institucional coletivo de encerramento de ano." },
+      { id: "ag-3", titulo: "FÉRIAS FABIANA", categoria: "ferias", dataInicio: "2026-12-28", dataFim: "2027-01-16", horario: "", prioridade: "none", detalhes: "" },
+      { id: "ag-4", titulo: "FÉRIAS AUGUSTO", categoria: "ferias", dataInicio: "2027-01-04", dataFim: "2027-01-13", horario: "", prioridade: "none", detalhes: "" },
+      { id: "ag-5", titulo: "DISSIDIO", categoria: "dissidio", dataInicio: "2026-11-27", dataFim: "", horario: "", prioridade: "none", detalhes: "" }
     ];
   }
 }
@@ -381,7 +381,7 @@ function renderizarAgendamentos() {
         dataFim: "",
         horario: "",
         prioridade: "none",
-        detalhes: "Feriado Nacional Oficial do Brasil.",
+        detalhes: "",
         isFeriado: true
       }));
 
@@ -409,6 +409,12 @@ function renderizarAgendamentos() {
     const card = document.createElement("div");
     card.className = `appointment-card cat-theme-${item.categoria || 'geral'}`;
     card.id = `card-${item.id}`;
+
+    // Verifica se realmente possui detalhamento preenchido
+    const temDetalhes = item.detalhes && item.detalhes.trim().length > 0;
+    if (temDetalhes) {
+      card.classList.add("has-custom-details");
+    }
 
     const pInicio = (item.dataInicio || "").split("-");
     const diaIni = pInicio[2] || "--";
@@ -443,6 +449,8 @@ function renderizarAgendamentos() {
       ? 'FERIADO' 
       : ((item.prioridade && item.prioridade !== 'none') ? item.prioridade.toUpperCase() : (item.categoria ? item.categoria.toUpperCase() : 'GERAL'));
 
+    const iconeNota = temDetalhes ? `<i class="bi bi-card-text text-secondary ms-1 small" title="Possui detalhamento"></i>` : "";
+
     const botoesAcaoHtml = item.isFeriado
       ? `<span class="badge bg-danger-subtle text-danger border">Feriado Oficial</span>`
       : `
@@ -457,12 +465,11 @@ function renderizarAgendamentos() {
     card.innerHTML = `
       <div class="appointment-summary" onclick="alternarDetalhes('${item.id}')">
         ${blocosDataHtml}
-        <span class="appointment-title" title="${item.titulo}">${item.titulo}</span>
+        <span class="appointment-title" title="${item.titulo}">${item.titulo} ${iconeNota}</span>
         <span class="status-badge">${labelStatus}</span>
       </div>
       <div class="appointment-details collapse" id="collapse-${item.id}">
-        <div class="details-label">DESCRIÇÃO</div>
-        <div class="details-text mb-2">${item.detalhes ? item.detalhes : '<em class="text-muted">Sem detalhes adicionais.</em>'}</div>
+        ${temDetalhes ? `<div class="details-label">DESCRIÇÃO</div><div class="details-text mb-2">${item.detalhes}</div>` : ''}
         <div class="small text-secondary mb-2">
           <strong>Período:</strong> ${formatarDataBr(item.dataInicio)} ${item.dataFim ? ' até ' + formatarDataBr(item.dataFim) : ''}
           ${item.horario ? ' às ' + item.horario : ''}
@@ -607,7 +614,7 @@ function formatarDataBr(dataIso) {
 
 function baixarArquivoJSON() {
   const dados = {
-    versao: "3.0",
+    versao: "3.1",
     exportadoEm: new Date().toISOString(),
     configSemestre: configSemestre,
     totalAgendamentos: agendamentos.length,
@@ -627,20 +634,20 @@ function baixarArquivoJSON() {
   URL.revokeObjectURL(url);
 }
 
-// Geração de PDF: Expande apenas os agendamentos normais; feriados permanecem fechados
+// 5. Geração de PDF: Expande SOMENTE cards com detalhamento digitado
 function exportarPDF() {
   baixarArquivoJSON();
 
   const elemento = document.getElementById("exportArea");
   elemento.classList.add("pdf-single-page");
 
-  // Abre exclusivamente os detalhes dos compromissos particulares
-  const collapsesUsuario = document.querySelectorAll('.appointment-card:not(.cat-theme-feriado) .appointment-details');
-  collapsesUsuario.forEach(el => el.classList.add('show'));
+  // Recolhe tudo inicialmente
+  const todosCollapses = document.querySelectorAll('.appointment-details');
+  todosCollapses.forEach(el => el.classList.remove('show'));
 
-  // Garante que os feriados permaneçam recolhidos
-  const collapsesFeriados = document.querySelectorAll('.cat-theme-feriado .appointment-details');
-  collapsesFeriados.forEach(el => el.classList.remove('show'));
+  // Expande APENAS os cards que possuem detalhamento preenchido (.has-custom-details)
+  const collapsesComDetalhe = document.querySelectorAll('.has-custom-details:not(.cat-theme-feriado) .appointment-details');
+  collapsesComDetalhe.forEach(el => el.classList.add('show'));
 
   const opcoes = {
     margin: [4, 4, 4, 4],
@@ -663,12 +670,11 @@ function exportarPDF() {
 
   html2pdf().set(opcoes).from(elemento).save().then(() => {
     elemento.classList.remove("pdf-single-page");
-    // Restaura o estado anterior dos agendamentos
-    collapsesUsuario.forEach(el => el.classList.remove('show'));
+    collapsesComDetalhe.forEach(el => el.classList.remove('show'));
   }).catch((err) => {
     console.error("Erro na geração do PDF:", err);
     elemento.classList.remove("pdf-single-page");
-    collapsesUsuario.forEach(el => el.classList.remove('show'));
+    collapsesComDetalhe.forEach(el => el.classList.remove('show'));
   });
 }
 

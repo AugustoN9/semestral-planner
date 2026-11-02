@@ -250,7 +250,7 @@ body {
   word-break: break-word;
 }
 
-/* Responsividade Mobile: tela < 768px */
+/* Responsividade Mobile: ecrãs < 768px */
 @media (max-width: 767.98px) {
   .title-app {
     font-size: 1.2rem;
@@ -270,7 +270,7 @@ body {
 }
 
 /* ==========================================================================
-   ESTILOS ESTITOS PARA FOLHA ÚNICA A4 PAISAGEM (297mm x 210mm)
+   ESTILOS ESTRITOS PARA FOLHA ÚNICA A4 PAISAGEM (297mm x 210mm)
    Meses 56% e Agendamentos 44% (Elimina cortes horizontais e verticais)
    ========================================================================== */
 .pdf-single-page {
@@ -381,14 +381,17 @@ body {
   padding: 1px 0 !important;
 }
 
-/* No PDF: Feriados NUNCA exibem detalhes; Agendamentos normais expandem */
-.pdf-single-page .cat-theme-feriado .appointment-details {
+/* No PDF: Feriados e cards sem detalhes preenchidos permanecem ocultos */
+.pdf-single-page .cat-theme-feriado .appointment-details,
+.pdf-single-page .appointment-card:not(.has-custom-details) .appointment-details {
   display: none !important;
 }
 
-.pdf-single-page .appointment-card:not(.cat-theme-feriado) .appointment-details {
+/* Apenas cards com detalhamento preenchido exibem a caixa de descrição */
+.pdf-single-page .has-custom-details:not(.cat-theme-feriado) .appointment-details {
   padding: 3px 5px !important;
   font-size: 0.62rem !important;
+  display: block !important;
 }
 
 .pdf-single-page .details-label {
@@ -398,6 +401,6 @@ body {
 
 .pdf-single-page .details-text {
   padding: 2px 4px !important;
-  min-height: 16px !important;
+  min-height: 14px !important;
   font-size: 0.6rem !important;
 }
