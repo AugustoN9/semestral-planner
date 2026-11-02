@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ag-1",
+    "titulo": "CONSULTA MEDICA",
+    "categoria": "saude",
+    "dataInicio": "2026-12-07",
+    "dataFim": "",
+    "horario": "09:30",
+    "prioridade": "alta",
+    "detalhes": "Consulta de rotina com médico assistente."
+  },
+  {
+    "id": "ag-2",
+    "titulo": "RECESSO DE FIM DE ANO",
+    "categoria": "recesso",
+    "dataInicio": "2026-12-28",
+    "dataFim": "2027-01-01",
+    "horario": "",
+    "prioridade": "none",
+    "detalhes": "Recesso coletivo de encerramento de ano."
+  },
+  {
+    "id": "ag-3",
+    "titulo": "FÉRIAS FABIANA",
+    "categoria": "ferias",
+    "dataInicio": "2026-12-28",
+    "dataFim": "2027-01-16",
+    "horario": "",
+    "prioridade": "none",
+    "detalhes": "Período de férias de Fabiana."
+  },
+  {
+    "id": "ag-4",
+    "titulo": "FÉRIAS AUGUSTO",
+    "categoria": "ferias",
+    "dataInicio": "2027-01-04",
+    "dataFim": "2027-01-13",
+    "horario": "",
+    "prioridade": "none",
+    "detalhes": "Período de férias de Augusto."
+  },
+  {
+    "id": "ag-5",
+    "titulo": "DISSIDIO",
+    "categoria": "dissidio",
+    "dataInicio": "2026-11-27",
+    "dataFim": "",
+    "horario": "",
+    "prioridade": "none",
+    "detalhes": "Homologação de dissídio."
+  },
+  {
+    "id": "ag-6",
+    "titulo": "DISSIDIO",
+    "categoria": "dissidio",
+    "dataInicio": "2027-02-11",
+    "dataFim": "2027-02-12",
+    "horario": "",
+    "prioridade": "none",
+    "detalhes": "Período de dissídio acordado."
+  },
+  {
+    "id": "ag-7",
+    "titulo": "EXAME LABORATORIAL",
+    "categoria": "saude",
+    "dataInicio": "2026-11-10",
+    "dataFim": "",
+    "horario": "10:30",
+    "prioridade": "media",
+    "detalhes": "Jejum obrigatório de 12 horas."
+  }
+]

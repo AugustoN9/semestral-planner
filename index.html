@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Planejamento Semestral 2026-2027</title>
+    <title>Planejamento Semestral</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 CSS & Icons -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- Bootstrap Icons -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
       rel="stylesheet"
@@ -22,25 +21,36 @@
       href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Estilo Customizado -->
+    <!-- Estilos da Aplicação -->
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="bg-light">
-    <div class="container-fluid py-4 px-4" id="exportArea">
-      <!-- Barra Superior -->
+    <div class="container-fluid py-3 px-4" id="exportArea">
+      <!-- Cabeçalho Principal -->
       <header
-        class="d-flex flex-wrap justify-content-between align-items-center pb-3 mb-4 border-bottom"
+        class="d-flex flex-wrap justify-content-between align-items-center pb-2 mb-3 border-bottom"
       >
         <div>
-          <h2 class="title-app mb-0">PLANEJAMENTO SEMESTRAL 2026-2027</h2>
+          <h2 class="title-app mb-0" id="tituloApp">PLANEJAMENTO SEMESTRAL</h2>
           <span class="text-muted small"
-            >Férias, Folgas, Recessos e Viagens</span
+            >Férias, Folgas, Recessos, Viagens e Feriados</span
           >
         </div>
         <div
-          class="d-flex gap-2 align-items-center mt-3 mt-md-0"
+          class="d-flex gap-2 align-items-center mt-2 mt-md-0"
           data-html2canvas-ignore="true"
         >
+          <!-- 1. Botão de Configurações (à esquerda de Novo Agendamento) -->
+          <button
+            id="btnConfiguracoes"
+            class="btn btn-outline-dark fw-semibold shadow-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#modalConfiguracoes"
+            title="Definir mês e ano inicial do semestre"
+          >
+            <i class="bi bi-gear-fill me-1"></i> Configurações
+          </button>
+
           <button
             id="btnNovoAgendamento"
             class="btn btn-warning fw-semibold shadow-sm"
@@ -50,7 +60,6 @@
             <i class="bi bi-calendar-plus-fill me-1"></i> Novo Agendamento
           </button>
 
-          <!-- Input de arquivo oculto e botão para restaurar backup JSON -->
           <input
             type="file"
             id="inputImportarJSON"
@@ -60,16 +69,15 @@
           <button
             id="btnImportarJSON"
             class="btn btn-outline-secondary fw-semibold shadow-sm"
-            title="Restaurar agendamentos via ficheiro JSON"
+            title="Restaurar backup JSON"
           >
             <i class="bi bi-upload me-1"></i> Importar JSON
           </button>
 
-          <!-- Botão combinado: descarrega o JSON e gera o PDF -->
           <button
             id="btnExportarPDF"
             class="btn btn-dark fw-semibold shadow-sm"
-            title="Descarrega o documento PDF e o backup JSON"
+            title="Descarrega PDF em folha única e backup JSON"
           >
             <i class="bi bi-file-earmark-pdf-fill me-1"></i> Gerar PDF + Baixar
             JSON
@@ -77,31 +85,55 @@
         </div>
       </header>
 
-      <div class="row g-4">
-        <!-- Grade dos 6 Meses (Esquerda) -->
-        <section class="col-xl-8 col-lg-7">
+      <div class="row g-3" id="conteudoPrincipal">
+        <!-- Secção dos Meses (60% no PDF) -->
+        <section class="col-xl-8 col-lg-7" id="colunaMeses">
           <div
-            class="row row-cols-1 row-cols-md-2 g-4"
+            class="row row-cols-1 row-cols-md-2 g-2"
             id="calendariosContainer"
           >
-            <!-- Gerado dinamicamente via JS: Novembro 2026 a Abril 2027 -->
+            <!-- Calendários gerados dinamicamente via JS -->
           </div>
         </section>
 
-        <!-- Painel de Agendamentos (Direita) -->
-        <aside class="col-xl-4 col-lg-5">
+        <!-- Painel de Agendamentos (40% no PDF) -->
+        <aside class="col-xl-4 col-lg-5" id="colunaAgendamentos">
           <div
             class="card shadow-sm border-0 schedule-sidebar sticky-top"
-            style="top: 20px"
+            style="top: 15px"
           >
             <div
-              class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center"
+              class="card-header bg-white border-0 pt-2 pb-2 d-flex flex-wrap justify-content-between align-items-center gap-2"
             >
               <h5 class="title-panel mb-0">AGENDAMENTOS</h5>
               <div
                 class="d-flex align-items-center gap-2"
                 data-html2canvas-ignore="true"
               >
+                <!-- Switch de Feriados -->
+                <div class="form-check form-switch mb-0 me-1">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="checkExibirFeriados"
+                    checked
+                  />
+                  <label
+                    class="form-check-label small text-muted"
+                    for="checkExibirFeriados"
+                    >Feriados</label
+                  >
+                </div>
+
+                <!-- 2. Botão de Colapsar / Expandir Todos os Cards (ao lado da Ordem) -->
+                <button
+                  id="btnAlternarTodosCards"
+                  class="btn btn-sm btn-outline-secondary py-1 px-2"
+                  title="Colapsar / Expandir Todos"
+                >
+                  <i class="bi bi-arrows-collapse" id="iconeAlternarCards"></i>
+                </button>
+
                 <label
                   for="filtroOrdenacao"
                   class="small text-muted fw-bold mb-0"
@@ -114,19 +146,101 @@
                 >
                   <option value="data-asc">Data (crescente)</option>
                   <option value="data-desc">Data (decrescente)</option>
-                  <option value="prioridade">
-                    Prioridade (Alta &gt; Baixa)
-                  </option>
+                  <option value="categoria">Categoria</option>
+                  <option value="prioridade">Prioridade</option>
                 </select>
               </div>
             </div>
-            <div class="card-body p-3">
-              <div id="listaAgendamentos" class="d-flex flex-column gap-2">
-                <!-- Lista de agendamentos renderizada dinamicamente -->
+            <div class="card-body p-2">
+              <div id="listaAgendamentos" class="d-flex flex-column gap-1">
+                <!-- Cards de agendamentos gerados dinamicamente -->
               </div>
             </div>
           </div>
         </aside>
+      </div>
+    </div>
+
+    <!-- Modal Configurações de Semestre -->
+    <div
+      class="modal fade"
+      id="modalConfiguracoes"
+      tabindex="-1"
+      aria-labelledby="modalConfiguracoesLabel"
+      aria-hidden="true"
+      data-html2canvas-ignore="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <form id="formConfiguracoes">
+            <div class="modal-header bg-dark text-white">
+              <h5 class="modal-title" id="modalConfiguracoesLabel">
+                <i class="bi bi-gear-fill me-1"></i> Período Semestral
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="configMesInicio" class="form-label fw-bold small"
+                  >Mês Inicial</label
+                >
+                <select
+                  id="configMesInicio"
+                  class="form-select form-select-sm"
+                  required
+                >
+                  <option value="0">Janeiro</option>
+                  <option value="1">Fevereiro</option>
+                  <option value="2">Março</option>
+                  <option value="3">Abril</option>
+                  <option value="4">Maio</option>
+                  <option value="5">Junho</option>
+                  <option value="6">Julho</option>
+                  <option value="7">Agosto</option>
+                  <option value="8">Setembro</option>
+                  <option value="9">Outubro</option>
+                  <option value="10" selected>Novembro</option>
+                  <option value="11">Dezembro</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label for="configAnoInicio" class="form-label fw-bold small"
+                  >Ano Inicial</label
+                >
+                <input
+                  type="number"
+                  id="configAnoInicio"
+                  class="form-control form-control-sm"
+                  value="2026"
+                  min="2020"
+                  max="2040"
+                  required
+                />
+              </div>
+              <div class="text-muted small mt-2">
+                A aplicação gerará automaticamente a sequência de 6 meses a
+                partir da data definida.
+              </div>
+            </div>
+            <div class="modal-footer bg-light p-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Fechar
+              </button>
+              <button type="submit" class="btn btn-sm btn-warning fw-semibold">
+                Aplicar Alterações
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -158,51 +272,31 @@
 
               <div class="mb-3">
                 <label for="titulo" class="form-label fw-bold small"
-                  >Título / Descrição Curta *</label
+                  >Título / Descrição *</label
                 >
                 <input
                   type="text"
                   class="form-control"
                   id="titulo"
-                  placeholder="Ex: RECESSO, DISSIDIO, VIAGEM..."
+                  placeholder="Ex: FÉRIAS FABIANA, CONSULTA MÉDICA..."
                   required
                 />
               </div>
 
               <div class="row g-2 mb-3">
                 <div class="col-md-6">
-                  <label for="dataInicio" class="form-label fw-bold small"
-                    >Data Inicial *</label
+                  <label for="categoria" class="form-label fw-bold small"
+                    >Categoria / Tipo *</label
                   >
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="dataInicio"
-                    min="2026-11-01"
-                    max="2027-04-30"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label for="dataFim" class="form-label fw-bold small"
-                    >Data Final (opcional)</label
-                  >
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="dataFim"
-                    min="2026-11-01"
-                    max="2027-04-30"
-                  />
-                </div>
-              </div>
-
-              <div class="row g-2 mb-3">
-                <div class="col-md-6">
-                  <label for="horario" class="form-label fw-bold small"
-                    >Horário (se houver)</label
-                  >
-                  <input type="time" class="form-control" id="horario" />
+                  <select id="categoria" class="form-select" required>
+                    <option value="ferias">Férias (Verde)</option>
+                    <option value="recesso">Recesso (Amarelo)</option>
+                    <option value="dissidio">Dissídio (Laranja)</option>
+                    <option value="saude">
+                      Saúde / Consulta (Ciano Suave)
+                    </option>
+                    <option value="geral">Geral / Outros (Cinza)</option>
+                  </select>
                 </div>
                 <div class="col-md-6">
                   <label for="prioridade" class="form-label fw-bold small"
@@ -217,6 +311,33 @@
                 </div>
               </div>
 
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <label for="dataInicio" class="form-label fw-bold small"
+                    >Data Inicial *</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="dataInicio"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="dataFim" class="form-label fw-bold small"
+                    >Data Final (opcional)</label
+                  >
+                  <input type="date" class="form-control" id="dataFim" />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="horario" class="form-label fw-bold small"
+                  >Horário (se houver)</label
+                >
+                <input type="time" class="form-control" id="horario" />
+              </div>
+
               <div class="mb-3">
                 <label for="detalhes" class="form-label fw-bold small"
                   >Descrição Detalhada</label
@@ -225,7 +346,7 @@
                   class="form-control"
                   id="detalhes"
                   rows="3"
-                  placeholder="Anotações adicionais, observações, passagens..."
+                  placeholder="Anotações adicionais, observações..."
                 ></textarea>
               </div>
             </div>
@@ -246,7 +367,7 @@
       </div>
     </div>
 
-    <!-- Scripts: Bootstrap 5 Bundle e html2pdf.js -->
+    <!-- Bibliotecas JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Lógica Principal -->
