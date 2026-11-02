@@ -270,70 +270,75 @@ body {
 }
 
 /* ==========================================================================
-   ESTILOS ESTRITOS PARA FOLHA ÚNICA A4 PAISAGEM (297mm x 210mm)
-   Meses 56% e Agendamentos 44% (Elimina cortes horizontais e verticais)
+   ESTILOS ULTRA-COMPACTOS PARA FOLHA ÚNICA ESTRITA EM A4 PAISAGEM (297mm x 210mm)
+   Garante 0 quebras de página mesmo com muitos agendamentos e feriados
    ========================================================================== */
 .pdf-single-page {
-  width: 1120px !important;
-  max-width: 1120px !important;
-  height: 760px !important;
-  max-height: 760px !important;
-  overflow: hidden !important;
+  width: 1110px !important;
+  max-width: 1110px !important;
+  height: 745px !important;
+  max-height: 745px !important;
   background-color: #ffffff !important;
-  padding: 4px 10px !important;
+  padding: 2px 8px !important;
   margin: 0 auto !important;
   box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .pdf-single-page header {
-  padding-bottom: 2px !important;
-  margin-bottom: 4px !important;
+  padding-bottom: 1px !important;
+  margin-bottom: 3px !important;
 }
 
 .pdf-single-page .title-app {
-  font-size: 1.15rem !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 1px !important;
+}
+
+.pdf-single-page header .text-muted {
+  font-size: 0.65rem !important;
 }
 
 .pdf-single-page #colunaMeses {
-  flex: 0 0 56% !important;
-  width: 56% !important;
-  max-width: 56% !important;
+  flex: 0 0 54% !important;
+  width: 54% !important;
+  max-width: 54% !important;
   padding-right: 4px !important;
 }
 
 .pdf-single-page #colunaAgendamentos {
-  flex: 0 0 44% !important;
-  width: 44% !important;
-  max-width: 44% !important;
+  flex: 0 0 46% !important;
+  width: 46% !important;
+  max-width: 46% !important;
   padding-left: 4px !important;
 }
 
 .pdf-single-page .month-card {
-  padding: 3px 4px !important;
+  padding: 2px 4px !important;
   border: 1px solid #d4d4d8 !important;
-  border-radius: 4px !important;
+  border-radius: 3px !important;
   box-shadow: none !important;
 }
 
 .pdf-single-page .month-header-title {
-  font-size: 0.78rem !important;
-  margin-bottom: 2px !important;
+  font-size: 0.74rem !important;
+  margin-bottom: 1px !important;
 }
 
 .pdf-single-page .calendar-grid {
-  gap: 1.5px !important;
-  grid-template-columns: repeat(7, calc(100% / 7 - 1.5px)) !important;
+  gap: 1px !important;
+  grid-template-columns: repeat(7, calc(100% / 7 - 1px)) !important;
 }
 
 .pdf-single-page .cal-header {
-  font-size: 0.56rem !important;
-  padding: 1.5px 0 !important;
+  font-size: 0.54rem !important;
+  padding: 1px 0 !important;
   line-height: 1.1 !important;
 }
 
 .pdf-single-page .cal-day {
-  height: 20px !important;
-  font-size: 0.65rem !important;
+  height: 19px !important;
+  font-size: 0.62rem !important;
   border-radius: 2px !important;
 }
 
@@ -344,11 +349,11 @@ body {
 }
 
 .pdf-single-page .card-header {
-  padding: 0 0 3px 0 !important;
+  padding: 0 0 2px 0 !important;
 }
 
 .pdf-single-page .title-panel {
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
 }
 
 .pdf-single-page .card-body {
@@ -357,50 +362,52 @@ body {
 
 .pdf-single-page .appointment-card {
   box-shadow: none !important;
-  margin-bottom: 2px !important;
+  margin-bottom: 1.5px !important;
+  border-radius: 2px !important;
 }
 
 .pdf-single-page .appointment-summary {
-  padding: 2px 4px !important;
-  gap: 2.5px !important;
+  padding: 1.5px 3px !important;
+  gap: 2px !important;
 }
 
 .pdf-single-page .tag-badge {
-  font-size: 0.58rem !important;
-  padding: 1px 3px !important;
-  min-width: 18px !important;
+  font-size: 0.55rem !important;
+  padding: 0.5px 2.5px !important;
+  min-width: 17px !important;
 }
 
 .pdf-single-page .appointment-title {
-  font-size: 0.68rem !important;
+  font-size: 0.65rem !important;
 }
 
 .pdf-single-page .status-badge {
-  font-size: 0.54rem !important;
-  width: 52px !important;
-  padding: 1px 0 !important;
+  font-size: 0.52rem !important;
+  width: 50px !important;
+  padding: 0.5px 0 !important;
 }
 
-/* No PDF: Feriados e cards sem detalhes preenchidos permanecem ocultos */
+/* Oculta detalhes vazios e feriados */
 .pdf-single-page .cat-theme-feriado .appointment-details,
 .pdf-single-page .appointment-card:not(.has-custom-details) .appointment-details {
   display: none !important;
 }
 
-/* Apenas cards com detalhamento preenchido exibem a caixa de descrição */
+/* Expande com economia de espaço os cards que contêm observações */
 .pdf-single-page .has-custom-details:not(.cat-theme-feriado) .appointment-details {
-  padding: 3px 5px !important;
-  font-size: 0.62rem !important;
   display: block !important;
+  height: auto !important;
+  padding: 1.5px 4px !important;
+  font-size: 0.58rem !important;
 }
 
 .pdf-single-page .details-label {
-  font-size: 0.58rem !important;
-  margin-bottom: 1px !important;
+  font-size: 0.52rem !important;
+  margin-bottom: 0px !important;
 }
 
 .pdf-single-page .details-text {
-  padding: 2px 4px !important;
-  min-height: 14px !important;
-  font-size: 0.6rem !important;
+  padding: 1.5px 3px !important;
+  min-height: 10px !important;
+  font-size: 0.56rem !important;
 }

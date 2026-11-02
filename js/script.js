@@ -410,8 +410,8 @@ function renderizarAgendamentos() {
     card.className = `appointment-card cat-theme-${item.categoria || 'geral'}`;
     card.id = `card-${item.id}`;
 
-    // Verifica se realmente possui detalhamento preenchido
-    const temDetalhes = item.detalhes && item.detalhes.trim().length > 0;
+    // Marcação se tem detalhamento preenchido
+    const temDetalhes = Boolean(item.detalhes && item.detalhes.trim().length > 0);
     if (temDetalhes) {
       card.classList.add("has-custom-details");
     }
@@ -634,23 +634,15 @@ function baixarArquivoJSON() {
   URL.revokeObjectURL(url);
 }
 
-// 5. Geração de PDF: Expande SOMENTE cards com detalhamento digitado
+// 5. Geração Segura do PDF Travada em 1 Folha A4 Paisagem
 function exportarPDF() {
   baixarArquivoJSON();
 
   const elemento = document.getElementById("exportArea");
   elemento.classList.add("pdf-single-page");
 
-  // Recolhe tudo inicialmente
-  const todosCollapses = document.querySelectorAll('.appointment-details');
-  todosCollapses.forEach(el => el.classList.remove('show'));
-
-  // Expande APENAS os cards que possuem detalhamento preenchido (.has-custom-details)
-  const collapsesComDetalhe = document.querySelectorAll('.has-custom-details:not(.cat-theme-feriado) .appointment-details');
-  collapsesComDetalhe.forEach(el => el.classList.add('show'));
-
   const opcoes = {
-    margin: [4, 4, 4, 4],
+    margin: [2, 2, 2, 2],
     filename: `Planejamento_Semestral_${new Date().toISOString().slice(0, 10)}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
@@ -668,14 +660,14 @@ function exportarPDF() {
     pagebreak: { mode: 'avoid-all' }
   };
 
-  html2pdf().set(opcoes).from(elemento).save().then(() => {
-    elemento.classList.remove("pdf-single-page");
-    collapsesComDetalhe.forEach(el => el.classList.remove('show'));
-  }).catch((err) => {
-    console.error("Erro na geração do PDF:", err);
-    elemento.classList.remove("pdf-single-page");
-    collapsesComDetalhe.forEach(el => el.classList.remove('show'));
-  });
+  setTimeout(() => {
+    html2pdf().set(opcoes).from(elemento).save().then(() => {
+      elemento.classList.remove("pdf-single-page");
+    }).catch((err) => {
+      console.error("Erro na geração do PDF:", err);
+      elemento.classList.remove("pdf-single-page");
+    });
+  }, 120);
 }
 
 function importarBackupJSON(event) {
