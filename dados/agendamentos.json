@@ -1,11 +1,11 @@
 {
   "versao": "3.2",
-  "exportadoEm": "2026-11-02T04:52:05.703Z",
+  "exportadoEm": "2026-11-02T05:01:01.401Z",
   "configSemestre": {
     "anoInicio": 2026,
     "mesInicio": 10
   },
-  "totalAgendamentos": 7,
+  "totalAgendamentos": 8,
   "agendamentos": [
     {
       "id": "ag-2",
@@ -73,6 +73,16 @@
       "categoria": "geral",
       "dataInicio": "2026-11-20",
       "dataFim": "",
+      "horario": "",
+      "prioridade": "alta",
+      "detalhes": ""
+    },
+    {
+      "id": "ag-1793595622946",
+      "titulo": "SESC GRAMADO RS",
+      "categoria": "viagem",
+      "dataInicio": "2027-01-03",
+      "dataFim": "2027-01-08",
       "horario": "",
       "prioridade": "alta",
       "detalhes": ""
