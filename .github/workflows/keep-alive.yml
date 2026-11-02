@@ -1,0 +1,19 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Executa a cada 3 dias às 09:00 UTC (06:00 horário de Brasília)
+    - cron: '0 9 */3 * *'
+  workflow_dispatch: # Permite acionar manualmente pelo painel do GitHub Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar requisição de leitura no Supabase
+        run: |
+          curl -s -X GET "https://ocmjbfwvfznmyadfputs.supabase.co/rest/v1/configuracao_semestre?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Range: 0-0" > /dev/null
+          echo "Supabase notificado com sucesso para evitar inatividade."
