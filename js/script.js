@@ -1,4 +1,18 @@
-// 1. Configuração Dinâmica do Semestre
+// ==========================================================================
+// 1. Configuração e Conexão ao Supabase (PostgreSQL)
+// ==========================================================================
+const SUPABASE_URL = "https://ocmjbfwvfznmyadfputs.supabase.co";
+// Publishable key do projeto Auguston9's Project
+const SUPABASE_ANON_KEY = "sb_publishable_OaH32KQANvAqMKR0ygVvUA_gYK0ZCI2"; // Substitua caso tenha a chave completa original
+
+const supabaseClient =
+  typeof supabase !== "undefined"
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+// ==========================================================================
+// 2. Configuração Dinâmica do Semestre e Categorias
+// ==========================================================================
 let configSemestre = JSON.parse(localStorage.getItem("config_semestre")) || {
   anoInicio: 2026,
   mesInicio: 10, // Novembro (0-indexado)
@@ -67,7 +81,9 @@ let modalEventoInstance = null;
 let modalConfigInstance = null;
 let cardsColapsados = true;
 
-// Inicialização Assíncrona com Proteção Global
+// ==========================================================================
+// 3. Inicialização Assíncrona da Aplicação
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", async () => {
   modalEventoInstance = new bootstrap.Modal(
     document.getElementById("modalEvento"),
@@ -83,8 +99,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   try {
+    await carregarConfiguracaoSupabase();
     await Promise.all([
-      carregarAgendamentosIniciais(),
+      carregarAgendamentosSupabase(),
       carregarFeriadosDosAnosDoSemestre(),
     ]);
   } catch (err) {
@@ -114,6 +131,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     .getElementById("btnExportarPDF")
     .addEventListener("click", exportarPDF);
 
+  const btnSincronizar = document.getElementById("btnSincronizar");
+  if (btnSincronizar) {
+    btnSincronizar.addEventListener("click", sincronizarComSupabase);
+  }
+
   const btnImportar = document.getElementById("btnImportarJSON");
   const inputImportar = document.getElementById("inputImportarJSON");
   if (btnImportar && inputImportar) {
@@ -122,7 +144,163 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Atualiza o semestre na memória e no cabeçalho
+// ==========================================================================
+// 4. Operações Remotas no Supabase (Leitura e Fallback)
+// ==========================================================================
+
+async function carregarConfiguracaoSupabase() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from("configuracao_semestre")
+      .select("ano_inicio, mes_inicio")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (data) {
+      atualizarConfiguracaoSemestre(data.ano_inicio, data.mes_inicio, true);
+    }
+  } catch (err) {
+    console.warn(
+      "Aviso ao carregar configuração do Supabase, usando local:",
+      err,
+    );
+  }
+}
+
+async function carregarAgendamentosSupabase() {
+  if (!supabaseClient) {
+    carregarAgendamentosLocaisFallback();
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("agendamentos")
+      .select("*")
+      .order("data_inicio", { ascending: true });
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      agendamentos = data.map((item) => ({
+        id: item.id,
+        titulo: item.titulo,
+        categoria: item.categoria || "geral",
+        prioridade: item.prioridade || "none",
+        dataInicio: item.data_inicio,
+        dataFim: item.data_fim || "",
+        horario: item.horario || "",
+        detalhes: item.detalhes || "",
+      }));
+      localStorage.setItem(
+        "planejamento_2026_2027",
+        JSON.stringify(agendamentos),
+      );
+      return;
+    }
+
+    // Se o Supabase estiver sem registos, tenta dados locais ou iniciais
+    carregarAgendamentosLocaisFallback();
+  } catch (err) {
+    console.warn("Supabase inacessível, utilizando cache local:", err);
+    carregarAgendamentosLocaisFallback();
+  }
+}
+
+function carregarAgendamentosLocaisFallback() {
+  const dadosLocais = localStorage.getItem("planejamento_2026_2027");
+  if (dadosLocais) {
+    try {
+      const parsed = JSON.parse(dadosLocais);
+      agendamentos = Array.isArray(parsed) ? parsed : parsed.agendamentos || [];
+      if (Array.isArray(agendamentos) && agendamentos.length > 0) return;
+    } catch (e) {
+      console.warn("Aviso ao ler localStorage:", e);
+    }
+  }
+
+  agendamentos = [
+    {
+      id: "ag-1",
+      titulo: "CONSULTA MÉDICA ENDOCRINOLOGIA",
+      categoria: "saude",
+      dataInicio: "2026-11-05",
+      dataFim: "",
+      horario: "07:30",
+      prioridade: "alta",
+      detalhes: "Consulta com Dr. Emanuel Eggers Turra CRM 29167",
+    },
+    {
+      id: "ag-2",
+      titulo: "RECESSO DE FIM DE ANO",
+      categoria: "recesso",
+      dataInicio: "2026-12-28",
+      dataFim: "2026-12-31",
+      horario: "",
+      prioridade: "none",
+      detalhes: "",
+    },
+    {
+      id: "ag-3",
+      titulo: "FÉRIAS FABIANA",
+      categoria: "ferias",
+      dataInicio: "2026-12-28",
+      dataFim: "2027-01-16",
+      horario: "",
+      prioridade: "none",
+      detalhes: "",
+    },
+    {
+      id: "ag-4",
+      titulo: "FÉRIAS AUGUSTO",
+      categoria: "ferias",
+      dataInicio: "2027-01-04",
+      dataFim: "2027-01-13",
+      horario: "",
+      prioridade: "none",
+      detalhes:
+        "Período de férias de Augusto. Lembrar de vender 10 dias de férias",
+    },
+  ];
+}
+
+async function sincronizarComSupabase() {
+  Swal.fire({
+    title: "Sincronizando...",
+    text: "A obter os dados mais recentes do Supabase.",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    await carregarConfiguracaoSupabase();
+    await carregarAgendamentosSupabase();
+    await carregarFeriadosDosAnosDoSemestre();
+    renderizarMeses();
+    renderizarAgendamentos();
+
+    Swal.fire({
+      icon: "success",
+      title: "Sincronizado!",
+      text: "Todos os dados foram atualizados a partir da base de dados.",
+      timer: 1400,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Falha na Ligação",
+      text: "Não foi possível sincronizar com o Supabase.",
+    });
+  }
+}
+
+// ==========================================================================
+// 5. Configuração de Semestre e Feriados Dinâmicos
+// ==========================================================================
+
 function atualizarConfiguracaoSemestre(anoInicio, mesInicio, persistir = true) {
   configSemestre = {
     anoInicio: parseInt(anoInicio, 10),
@@ -156,7 +334,6 @@ function atualizarConfiguracaoSemestre(anoInicio, mesInicio, persistir = true) {
   if (elAno) elAno.value = configSemestre.anoInicio;
 }
 
-// Salva e aplica novas configurações de início de semestre
 async function aplicarNovasConfiguracoes(e) {
   e.preventDefault();
   const novoMes = parseInt(
@@ -169,8 +346,18 @@ async function aplicarNovasConfiguracoes(e) {
   );
 
   atualizarConfiguracaoSemestre(novoAno, novoMes, true);
-  await carregarFeriadosDosAnosDoSemestre();
 
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from("configuracao_semestre")
+        .upsert({ id: 1, ano_inicio: novoAno, mes_inicio: novoMes });
+    } catch (err) {
+      console.warn("Erro ao persistir configuração no Supabase:", err);
+    }
+  }
+
+  await carregarFeriadosDosAnosDoSemestre();
   renderizarMeses();
   renderizarAgendamentos();
   modalConfigInstance.hide();
@@ -184,115 +371,6 @@ async function aplicarNovasConfiguracoes(e) {
   });
 }
 
-// 2. Carregamento Resiliente de Agendamentos
-async function carregarAgendamentosIniciais() {
-  const dadosLocais = localStorage.getItem("planejamento_2026_2027");
-  if (dadosLocais) {
-    try {
-      const parsed = JSON.parse(dadosLocais);
-      agendamentos = Array.isArray(parsed) ? parsed : parsed.agendamentos || [];
-      if (Array.isArray(agendamentos) && agendamentos.length > 0) return;
-    } catch (e) {
-      console.warn("Aviso ao ler localStorage:", e);
-    }
-  }
-
-  try {
-    const resposta = await fetch("dados/agendamentos.json", {
-      cache: "no-cache",
-    });
-    if (!resposta.ok) throw new Error("Status HTTP " + resposta.status);
-
-    const dados = await resposta.json();
-
-    if (Array.isArray(dados)) {
-      agendamentos = dados;
-    } else if (dados && Array.isArray(dados.agendamentos)) {
-      agendamentos = dados.agendamentos;
-      if (dados.configSemestre) {
-        atualizarConfiguracaoSemestre(
-          dados.configSemestre.anoInicio,
-          dados.configSemestre.mesInicio,
-          true,
-        );
-      }
-    } else {
-      agendamentos = [];
-    }
-
-    localStorage.setItem(
-      "planejamento_2026_2027",
-      JSON.stringify(agendamentos),
-    );
-  } catch (erro) {
-    console.warn("Utilizando dados padrão de contingência:", erro);
-    agendamentos = [
-      {
-        id: "ag-1",
-        titulo: "CONSULTA MEDICA ENDOCRINOLOGIA",
-        categoria: "saude",
-        dataInicio: "2026-11-05",
-        dataFim: "",
-        horario: "07:30",
-        prioridade: "alta",
-        detalhes: "Consulta com Dr. Emanuel Eggers Turra CRM 29167",
-      },
-      {
-        id: "ag-2",
-        titulo: "SHOW WM SÃO PAULO",
-        categoria: "viagem",
-        dataInicio: "2026-11-20",
-        dataFim: "2026-11-23",
-        horario: "",
-        prioridade: "alta",
-        detalhes: "",
-      },
-      {
-        id: "ag-3",
-        titulo: "VOLTA DO SHOW EM SÃO PAULO",
-        categoria: "viagem",
-        dataInicio: "2026-11-23",
-        dataFim: "",
-        horario: "",
-        prioridade: "alta",
-        detalhes: "",
-      },
-      {
-        id: "ag-4",
-        titulo: "RECESSO DE FIM DE ANO PROCERGS",
-        categoria: "recesso",
-        dataInicio: "2026-12-28",
-        dataFim: "2027-01-01",
-        horario: "",
-        prioridade: "none",
-        detalhes: "",
-      },
-      {
-        id: "ag-5",
-        titulo: "FÉRIAS FABIANA",
-        categoria: "ferias",
-        dataInicio: "2026-12-28",
-        dataFim: "2027-01-16",
-        horario: "",
-        prioridade: "none",
-        detalhes: "",
-      },
-      {
-        id: "ag-6",
-        titulo: "FÉRIAS AUGUSTO",
-        categoria: "ferias",
-        dataInicio: "2027-01-04",
-        dataFim: "2027-01-13",
-        horario: "",
-        prioridade: "none",
-        detalhes:
-          "Período de férias de Augusto. Lembrar de vender 10 dias de férias",
-      },
-    ];
-  }
-}
-
-// 3. Feriados Nacionais dinâmicos
 async function carregarFeriadosDosAnosDoSemestre() {
   const anosDoSemestre = [...new Set(MESES.map((m) => m.ano))];
   const chaveCache = `feriados_${anosDoSemestre.join("_")}`;
@@ -341,7 +419,9 @@ async function carregarFeriadosDosAnosDoSemestre() {
   }
 }
 
-// Renderização dos Meses COM Feriados no Rodapé
+// ==========================================================================
+// 6. Renderização dos Meses com Feriados no Rodapé
+// ==========================================================================
 function renderizarMeses() {
   const container = document.getElementById("calendariosContainer");
   if (!container) return;
@@ -440,7 +520,7 @@ function renderizarMeses() {
 
     card.appendChild(grid);
 
-    // Rodapé do Mês: Exibe os feriados correspondentes logo abaixo da grade
+    // Rodapé de Feriados Logo Abaixo do Mês
     const rodapeFeriados = document.createElement("div");
     rodapeFeriados.className = "month-holidays-list";
 
@@ -461,7 +541,6 @@ function renderizarMeses() {
     }
 
     card.appendChild(rodapeFeriados);
-
     col.appendChild(card);
     container.appendChild(col);
   });
@@ -524,7 +603,9 @@ function alternarTodosCards() {
   }
 }
 
-// Renderização dos Agendamentos (APENAS compromissos particulares)
+// ==========================================================================
+// 7. Renderização dos Agendamentos no Painel Lateral
+// ==========================================================================
 function renderizarAgendamentos() {
   const container = document.getElementById("listaAgendamentos");
   if (!container) return;
@@ -558,7 +639,6 @@ function renderizarAgendamentos() {
     card.className = `appointment-card cat-theme-${item.categoria || "geral"}`;
     card.id = `card-${item.id}`;
 
-    // Marcação se tem detalhamento preenchido
     const temDetalhes = Boolean(
       item.detalhes && item.detalhes.trim().length > 0,
     );
@@ -676,7 +756,10 @@ function limparFormulario() {
     "Cadastrar Agendamento";
 }
 
-function salvarAgendamento(e) {
+// ==========================================================================
+// 8. Gravação, Edição e Eliminação no Supabase
+// ==========================================================================
+async function salvarAgendamento(e) {
   e.preventDefault();
 
   const id =
@@ -698,8 +781,7 @@ function salvarAgendamento(e) {
     return;
   }
 
-  const index = agendamentos.findIndex((ev) => ev.id === id);
-  const payload = {
+  const payloadObjeto = {
     id,
     titulo,
     categoria,
@@ -710,10 +792,11 @@ function salvarAgendamento(e) {
     detalhes,
   };
 
+  const index = agendamentos.findIndex((ev) => ev.id === id);
   if (index >= 0) {
-    agendamentos[index] = payload;
+    agendamentos[index] = payloadObjeto;
   } else {
-    agendamentos.push(payload);
+    agendamentos.push(payloadObjeto);
   }
 
   localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
@@ -722,10 +805,42 @@ function salvarAgendamento(e) {
   renderizarMeses();
   renderizarAgendamentos();
 
+  // Envia para o Supabase
+  if (supabaseClient) {
+    try {
+      const payloadSupabase = {
+        id: id,
+        titulo: titulo,
+        categoria: categoria,
+        prioridade: prioridade,
+        data_inicio: dataInicio,
+        data_fim: dataFim || null,
+        horario: horario || null,
+        detalhes: detalhes || null,
+      };
+
+      const { error } = await supabaseClient
+        .from("agendamentos")
+        .upsert(payloadSupabase);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error("Falha ao salvar no Supabase:", err);
+      Swal.fire({
+        icon: "warning",
+        title: "Salvo Localmente",
+        text: "O agendamento foi gravado no browser, mas ocorreu uma falha de sincronização com o Supabase.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+  }
+
   Swal.fire({
     icon: "success",
     title: "Sucesso",
-    text: "Agendamento salvo com sucesso!",
+    text: "Agendamento gravado e sincronizado no Supabase!",
     timer: 1400,
     showConfirmButton: false,
   });
@@ -752,15 +867,28 @@ window.editarAgendamento = function (id) {
 window.excluirAgendamento = function (id) {
   Swal.fire({
     title: "Excluir Agendamento?",
-    text: "Esta ação não poderá ser desfeita.",
+    text: "Esta ação removerá o agendamento da base de dados.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#d33",
     cancelButtonColor: "#6c757d",
     confirmButtonText: "Sim, excluir",
     cancelButtonText: "Cancelar",
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient
+            .from("agendamentos")
+            .delete()
+            .eq("id", id);
+
+          if (error) throw error;
+        } catch (err) {
+          console.error("Erro ao eliminar no Supabase:", err);
+        }
+      }
+
       agendamentos = agendamentos.filter((ev) => ev.id !== id);
       localStorage.setItem(
         "planejamento_2026_2027",
@@ -773,7 +901,7 @@ window.excluirAgendamento = function (id) {
       Swal.fire({
         icon: "success",
         title: "Excluído!",
-        text: "O agendamento foi removido.",
+        text: "O agendamento foi removido da nuvem.",
         timer: 1300,
         showConfirmButton: false,
       });
@@ -787,9 +915,12 @@ function formatarDataBr(dataIso) {
   return `${d}/${m}/${a}`;
 }
 
+// ==========================================================================
+// 9. Exportação de Backup e PDF
+// ==========================================================================
 function baixarArquivoJSON() {
   const dados = {
-    versao: "3.2",
+    versao: "4.0",
     exportadoEm: new Date().toISOString(),
     configSemestre: configSemestre,
     totalAgendamentos: agendamentos.length,
@@ -811,7 +942,6 @@ function baixarArquivoJSON() {
   URL.revokeObjectURL(url);
 }
 
-// Geração Segura do PDF Travada em 1 Folha A4 Paisagem
 function exportarPDF() {
   baixarArquivoJSON();
 
@@ -869,15 +999,15 @@ function importarBackupJSON(event) {
       }
 
       Swal.fire({
-        title: "Importar Dados?",
-        text: `Deseja importar ${listaImportada.length} agendamentos? Isso substituirá a lista atual.`,
+        title: "Importar e Sincronizar?",
+        text: `Deseja importar ${listaImportada.length} agendamentos e persistir no Supabase?`,
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#ffc107",
         cancelButtonColor: "#6c757d",
         confirmButtonText: "Sim, importar",
         cancelButtonText: "Cancelar",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           agendamentos = listaImportada;
           if (conteudo.configSemestre) {
@@ -891,13 +1021,28 @@ function importarBackupJSON(event) {
             "planejamento_2026_2027",
             JSON.stringify(agendamentos),
           );
+
+          if (supabaseClient) {
+            const payloadSupabase = agendamentos.map((item) => ({
+              id: item.id,
+              titulo: item.titulo,
+              categoria: item.categoria || "geral",
+              prioridade: item.prioridade || "none",
+              data_inicio: item.dataInicio,
+              data_fim: item.dataFim || null,
+              horario: item.horario || null,
+              detalhes: item.detalhes || null,
+            }));
+            await supabaseClient.from("agendamentos").upsert(payloadSupabase);
+          }
+
           renderizarMeses();
           renderizarAgendamentos();
 
           Swal.fire({
             icon: "success",
             title: "Importado com Sucesso!",
-            text: "Os agendamentos foram restaurados.",
+            text: "Os agendamentos foram restaurados e sincronizados no Supabase.",
             timer: 1600,
             showConfirmButton: false,
           });
@@ -907,7 +1052,7 @@ function importarBackupJSON(event) {
       Swal.fire({
         icon: "error",
         title: "Erro na Leitura",
-        text: "Certifique-se de que é um arquivo JSON de backup válido.",
+        text: "Certifique-se de que é um ficheiro JSON de backup válido.",
       });
       console.error(erro);
     } finally {

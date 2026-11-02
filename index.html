@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css?v=3.3" />
+    <link rel="stylesheet" href="css/style.css?v=4.0" />
   </head>
   <body class="bg-light">
     <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
@@ -65,13 +65,13 @@
             <i class="bi bi-calendar-plus-fill me-1"></i> Novo Agendamento
           </button>
 
-          <!-- Botão para sincronizar e limpar dados antigos do telemóvel -->
+          <!-- Sincronização remota via Supabase -->
           <button
-            id="btnRestaurarPadrao"
-            class="btn btn-outline-danger btn-sm fw-semibold shadow-sm"
-            title="Recarregar dados atualizados e limpar cache local"
+            id="btnSincronizar"
+            class="btn btn-outline-primary btn-sm fw-semibold shadow-sm"
+            title="Recarregar dados atualizados do Supabase"
           >
-            <i class="bi bi-arrow-clockwise me-1"></i> Sincronizar
+            <i class="bi bi-arrow-repeat me-1"></i> Sincronizar
           </button>
 
           <input
@@ -83,7 +83,7 @@
           <button
             id="btnImportarJSON"
             class="btn btn-outline-secondary btn-sm fw-semibold shadow-sm"
-            title="Restaurar backup JSON"
+            title="Restaurar backup JSON e sincronizar"
           >
             <i class="bi bi-upload me-1"></i> Importar JSON
           </button>
@@ -222,8 +222,8 @@
                 />
               </div>
               <div class="text-muted small mt-2">
-                A aplicação recalculará automaticamente os 6 meses e buscará os
-                feriados correspondentes.
+                As alterações serão guardadas no Supabase e refletidas em todos
+                os seus dispositivos.
               </div>
             </div>
             <div class="modal-footer bg-light p-2">
@@ -372,7 +372,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Supabase JS Client v2 Oficial -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Lógica Principal -->
-    <script src="js/script.js?v=3.3"></script>
+    <script src="js/script.js?v=4.0"></script>
   </body>
 </html>
