@@ -1,18 +1,18 @@
 {
   "versao": "3.2",
-  "exportadoEm": "2026-11-02T05:01:01.401Z",
+  "exportadoEm": "2026-11-02T15:34:41.642Z",
   "configSemestre": {
     "anoInicio": 2026,
     "mesInicio": 10
   },
-  "totalAgendamentos": 8,
+  "totalAgendamentos": 11,
   "agendamentos": [
     {
       "id": "ag-2",
       "titulo": "RECESSO DE FIM DE ANO",
       "categoria": "recesso",
       "dataInicio": "2026-12-28",
-      "dataFim": "2027-01-01",
+      "dataFim": "2026-12-31",
       "horario": "",
       "prioridade": "none",
       "detalhes": ""
@@ -53,9 +53,9 @@
       "categoria": "geral",
       "dataInicio": "2026-11-23",
       "dataFim": "",
-      "horario": "",
+      "horario": "16:00",
       "prioridade": "alta",
-      "detalhes": ""
+      "detalhes": "Voo POA 19h25 chegada 21h10"
     },
     {
       "id": "ag-1793589067309",
@@ -73,9 +73,9 @@
       "categoria": "geral",
       "dataInicio": "2026-11-20",
       "dataFim": "",
-      "horario": "",
+      "horario": "06:25",
       "prioridade": "alta",
-      "detalhes": ""
+      "detalhes": "Chegar no aeroporto as 6h25 voo 7h25 chegada em SP as 9h"
     },
     {
       "id": "ag-1793595622946",
@@ -86,6 +86,36 @@
       "horario": "",
       "prioridade": "alta",
       "detalhes": ""
+    },
+    {
+      "id": "ag-1793632623625",
+      "titulo": "Passeio Brenda Quinta da Estancia",
+      "categoria": "passeio",
+      "dataInicio": "2026-11-18",
+      "dataFim": "",
+      "horario": "09:30",
+      "prioridade": "media",
+      "detalhes": "Deixar no Guanella as 9h30 termino as 18h30"
+    },
+    {
+      "id": "ag-1793632696345",
+      "titulo": "Deixar Brenda na Vó",
+      "categoria": "geral",
+      "dataInicio": "2026-11-19",
+      "dataFim": "",
+      "horario": "20:00",
+      "prioridade": "alta",
+      "detalhes": ""
+    },
+    {
+      "id": "ag-1793633629825",
+      "titulo": "ANIVER FABI",
+      "categoria": "geral",
+      "dataInicio": "2027-01-15",
+      "dataFim": "",
+      "horario": "",
+      "prioridade": "none",
+      "detalhes": "PARABENS A VOCE"
     }
   ]
 }
