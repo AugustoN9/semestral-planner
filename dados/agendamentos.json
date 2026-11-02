@@ -1,11 +1,11 @@
 {
-  "versao": "2.4",
-  "exportadoEm": "2026-11-02T02:40:04.741Z",
+  "versao": "3.2",
+  "exportadoEm": "2026-11-02T04:52:05.703Z",
   "configSemestre": {
     "anoInicio": 2026,
     "mesInicio": 10
   },
-  "totalAgendamentos": 6,
+  "totalAgendamentos": 7,
   "agendamentos": [
     {
       "id": "ag-2",
@@ -15,7 +15,7 @@
       "dataFim": "2027-01-01",
       "horario": "",
       "prioridade": "none",
-      "detalhes": "Recesso coletivo de encerramento de ano."
+      "detalhes": ""
     },
     {
       "id": "ag-3",
@@ -25,7 +25,7 @@
       "dataFim": "2027-01-16",
       "horario": "",
       "prioridade": "none",
-      "detalhes": "Período de férias de Fabiana."
+      "detalhes": ""
     },
     {
       "id": "ag-4",
@@ -45,12 +45,12 @@
       "dataFim": "",
       "horario": "07:30",
       "prioridade": "alta",
-      "detalhes": "Consulta com Dr. Emanuel Eggers Turra CRM 29167"
+      "detalhes": "Consulta com Dr. Emanuel Eggers Turra CRM 29167.\nMostrar exames realizados."
     },
     {
       "id": "ag-1793587144863",
-      "titulo": "Volta do Show em São Paulo",
-      "categoria": "dissidio",
+      "titulo": "VOLTA DE SÃO PAULO",
+      "categoria": "geral",
       "dataInicio": "2026-11-23",
       "dataFim": "",
       "horario": "",
@@ -58,11 +58,21 @@
       "detalhes": ""
     },
     {
-      "id": "ag-1793587188236",
-      "titulo": "Show wm São Paulo",
+      "id": "ag-1793589067309",
+      "titulo": "SHOW EDDIE VEDDER SÃO PAULO",
+      "categoria": "geral",
+      "dataInicio": "2026-11-22",
+      "dataFim": "",
+      "horario": "15:30",
+      "prioridade": "alta",
+      "detalhes": "Show Parque Ibirapuera, São Paulo - Eddie Vedder"
+    },
+    {
+      "id": "ag-1793589137806",
+      "titulo": "IDA VIAGEM SÃO PAULO",
       "categoria": "geral",
       "dataInicio": "2026-11-20",
-      "dataFim": "2026-11-23",
+      "dataFim": "",
       "horario": "",
       "prioridade": "alta",
       "detalhes": ""
