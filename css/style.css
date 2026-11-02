@@ -2,7 +2,7 @@
   --app-header-blue: #0b5e82;
   --calendar-cell-bg: #e5ebf0;
   --calendar-cell-border: #bcc8d2;
-  
+
   --cat-ferias-bg: #9ce69e;
   --cat-ferias-border: #62c766;
   --cat-recesso-bg: #ffcf29;
@@ -15,19 +15,19 @@
   --cat-viagem-border: #38bdf8;
   --cat-passeio-bg: #e9d5ff;
   --cat-passeio-border: #c084fc;
-  --cat-feriado-bg: #ffd8d8;
-  --cat-feriado-border: #f87171;
   --cat-geral-bg: #e2e8f0;
   --cat-geral-border: #cbd5e1;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: #212529;
 }
 
-.title-app, .title-panel, .month-header-title {
-  font-family: 'Oswald', sans-serif;
+.title-app,
+.title-panel,
+.month-header-title {
+  font-family: "Oswald", sans-serif;
   letter-spacing: 1.2px;
   text-transform: uppercase;
 }
@@ -38,6 +38,8 @@ body {
   border-radius: 6px;
   padding: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 .month-header-title {
@@ -115,64 +117,83 @@ body {
   border-radius: 50%;
 }
 
+/* --- Rodapé de Feriados Logo Abaixo do Mês --- */
+.month-holidays-list {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 0.68rem;
+  color: #64748b;
+  min-height: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  line-height: 1.2;
+}
+
+.holiday-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.holiday-item-date {
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.holiday-item-name {
+  color: #475569;
+  text-transform: uppercase;
+}
+
 /* --- Agendamentos Padrão --- */
 .appointment-card {
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, outline 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    outline 0.2s ease,
+    opacity 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.cat-theme-ferias { background-color: var(--cat-ferias-bg); border-color: var(--cat-ferias-border); }
-.cat-theme-recesso { background-color: var(--cat-recesso-bg); border-color: var(--cat-recesso-border); }
-.cat-theme-dissidio { background-color: var(--cat-dissidio-bg); border-color: var(--cat-dissidio-border); }
-.cat-theme-saude { background-color: var(--cat-saude-bg); border-color: var(--cat-saude-border); }
-.cat-theme-viagem { background-color: var(--cat-viagem-bg); border-color: var(--cat-viagem-border); }
-.cat-theme-passeio { background-color: var(--cat-passeio-bg); border-color: var(--cat-passeio-border); }
-.cat-theme-geral { background-color: var(--cat-geral-bg); border-color: var(--cat-geral-border); }
+.cat-theme-ferias {
+  background-color: var(--cat-ferias-bg);
+  border-color: var(--cat-ferias-border);
+}
+.cat-theme-recesso {
+  background-color: var(--cat-recesso-bg);
+  border-color: var(--cat-recesso-border);
+}
+.cat-theme-dissidio {
+  background-color: var(--cat-dissidio-bg);
+  border-color: var(--cat-dissidio-border);
+}
+.cat-theme-saude {
+  background-color: var(--cat-saude-bg);
+  border-color: var(--cat-saude-border);
+}
+.cat-theme-viagem {
+  background-color: var(--cat-viagem-bg);
+  border-color: var(--cat-viagem-border);
+}
+.cat-theme-passeio {
+  background-color: var(--cat-passeio-bg);
+  border-color: var(--cat-passeio-border);
+}
+.cat-theme-geral {
+  background-color: var(--cat-geral-bg);
+  border-color: var(--cat-geral-border);
+}
 
 .appointment-card.highlight-selected {
   outline: 3px solid #0b5e82 !important;
   transform: scale(1.02);
   z-index: 5;
-}
-
-/* Cartão de Feriado Discreto */
-.appointment-card.cat-theme-feriado {
-  background-color: #f8fafc !important;
-  border: 1px dashed #cbd5e1 !important;
-  box-shadow: none !important;
-  opacity: 0.8;
-}
-
-.appointment-card.cat-theme-feriado:hover {
-  opacity: 1;
-  background-color: #f1f5f9 !important;
-}
-
-.appointment-card.cat-theme-feriado .appointment-summary {
-  padding: 3px 6px !important;
-}
-
-.appointment-card.cat-theme-feriado .appointment-title {
-  color: #64748b !important;
-  font-weight: 500 !important;
-  font-size: 0.78rem !important;
-}
-
-.appointment-card.cat-theme-feriado .tag-badge {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: #e2e8f0 !important;
-  color: #64748b !important;
-}
-
-.appointment-card.cat-theme-feriado .status-badge {
-  background: transparent !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #94a3b8 !important;
-  font-weight: 600 !important;
-  font-size: 0.58rem !important;
 }
 
 /* Estrutura Interna dos Agendamentos */
@@ -271,7 +292,7 @@ body {
 
 /* ==========================================================================
    ESTILOS ULTRA-COMPACTOS PARA FOLHA ÚNICA ESTRITA EM A4 PAISAGEM (297mm x 210mm)
-   Garante 0 quebras de página mesmo com muitos agendamentos e feriados
+   Meses 54% e Agendamentos 46% com Feriados Compactos nos Meses
    ========================================================================== */
 .pdf-single-page {
   width: 1110px !important;
@@ -337,9 +358,17 @@ body {
 }
 
 .pdf-single-page .cal-day {
-  height: 19px !important;
+  height: 18px !important;
   font-size: 0.62rem !important;
   border-radius: 2px !important;
+}
+
+/* Rodapé de Feriados no PDF */
+.pdf-single-page .month-holidays-list {
+  margin-top: 2px !important;
+  padding-top: 2px !important;
+  font-size: 0.56rem !important;
+  gap: 1px 4px !important;
 }
 
 .pdf-single-page .schedule-sidebar {
@@ -362,52 +391,53 @@ body {
 
 .pdf-single-page .appointment-card {
   box-shadow: none !important;
-  margin-bottom: 1.5px !important;
+  margin-bottom: 2px !important;
   border-radius: 2px !important;
 }
 
 .pdf-single-page .appointment-summary {
-  padding: 1.5px 3px !important;
-  gap: 2px !important;
+  padding: 2px 4px !important;
+  gap: 2.5px !important;
 }
 
 .pdf-single-page .tag-badge {
-  font-size: 0.55rem !important;
-  padding: 0.5px 2.5px !important;
-  min-width: 17px !important;
+  font-size: 0.58rem !important;
+  padding: 1px 3px !important;
+  min-width: 18px !important;
 }
 
 .pdf-single-page .appointment-title {
-  font-size: 0.65rem !important;
+  font-size: 0.68rem !important;
 }
 
 .pdf-single-page .status-badge {
-  font-size: 0.52rem !important;
-  width: 50px !important;
-  padding: 0.5px 0 !important;
+  font-size: 0.54rem !important;
+  width: 52px !important;
+  padding: 1px 0 !important;
 }
 
-/* Oculta detalhes vazios e feriados */
-.pdf-single-page .cat-theme-feriado .appointment-details,
-.pdf-single-page .appointment-card:not(.has-custom-details) .appointment-details {
+/* Oculta detalhes vazios */
+.pdf-single-page
+  .appointment-card:not(.has-custom-details)
+  .appointment-details {
   display: none !important;
 }
 
-/* Expande com economia de espaço os cards que contêm observações */
-.pdf-single-page .has-custom-details:not(.cat-theme-feriado) .appointment-details {
+/* Expande apenas os cards com observações reais */
+.pdf-single-page .has-custom-details .appointment-details {
   display: block !important;
   height: auto !important;
-  padding: 1.5px 4px !important;
-  font-size: 0.58rem !important;
+  padding: 2px 4px !important;
+  font-size: 0.6rem !important;
 }
 
 .pdf-single-page .details-label {
-  font-size: 0.52rem !important;
-  margin-bottom: 0px !important;
+  font-size: 0.54rem !important;
+  margin-bottom: 1px !important;
 }
 
 .pdf-single-page .details-text {
-  padding: 1.5px 3px !important;
-  min-height: 10px !important;
-  font-size: 0.56rem !important;
+  padding: 2px 4px !important;
+  min-height: 12px !important;
+  font-size: 0.58rem !important;
 }
