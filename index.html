@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css?v=4.0" />
+    <link rel="stylesheet" href="css/style.css?v=4.1" />
   </head>
   <body class="bg-light">
     <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
@@ -56,6 +56,7 @@
             <i class="bi bi-gear-fill me-1"></i> Configurações
           </button>
 
+          <!-- Novo Agendamento -->
           <button
             id="btnNovoAgendamento"
             class="btn btn-warning btn-sm fw-semibold shadow-sm"
@@ -65,36 +66,13 @@
             <i class="bi bi-calendar-plus-fill me-1"></i> Novo Agendamento
           </button>
 
-          <!-- Sincronização remota via Supabase -->
-          <button
-            id="btnSincronizar"
-            class="btn btn-outline-primary btn-sm fw-semibold shadow-sm"
-            title="Recarregar dados atualizados do Supabase"
-          >
-            <i class="bi bi-arrow-repeat me-1"></i> Sincronizar
-          </button>
-
-          <input
-            type="file"
-            id="inputImportarJSON"
-            accept=".json"
-            class="d-none"
-          />
-          <button
-            id="btnImportarJSON"
-            class="btn btn-outline-secondary btn-sm fw-semibold shadow-sm"
-            title="Restaurar backup JSON e sincronizar"
-          >
-            <i class="bi bi-upload me-1"></i> Importar JSON
-          </button>
-
+          <!-- Exportar Apenas PDF -->
           <button
             id="btnExportarPDF"
             class="btn btn-dark btn-sm fw-semibold shadow-sm"
-            title="Descarrega PDF em folha única e backup JSON"
+            title="Descarrega PDF em folha única A4 paisagem"
           >
-            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Gerar PDF + Baixar
-            JSON
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Exportar PDF
           </button>
         </div>
       </header>
@@ -377,6 +355,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Lógica Principal -->
-    <script src="js/script.js?v=4.0"></script>
+    <script src="js/script.js?v=4.1"></script>
   </body>
 </html>
