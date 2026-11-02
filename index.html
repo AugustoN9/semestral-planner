@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css?v=3.2" />
+    <link rel="stylesheet" href="css/style.css?v=3.3" />
   </head>
   <body class="bg-light">
     <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
@@ -65,6 +65,15 @@
             <i class="bi bi-calendar-plus-fill me-1"></i> Novo Agendamento
           </button>
 
+          <!-- Botão para sincronizar e limpar dados antigos do telemóvel -->
+          <button
+            id="btnRestaurarPadrao"
+            class="btn btn-outline-danger btn-sm fw-semibold shadow-sm"
+            title="Recarregar dados atualizados e limpar cache local"
+          >
+            <i class="bi bi-arrow-clockwise me-1"></i> Sincronizar
+          </button>
+
           <input
             type="file"
             id="inputImportarJSON"
@@ -97,7 +106,7 @@
             class="row row-cols-1 row-cols-md-2 g-2"
             id="calendariosContainer"
           >
-            <!-- Calendários e rodapé de feriados gerados dinamicamente via JS -->
+            <!-- Calendários gerados dinamicamente via JS -->
           </div>
         </section>
 
@@ -364,6 +373,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Lógica Principal -->
-    <script src="js/script.js?v=3.2"></script>
+    <script src="js/script.js?v=3.3"></script>
   </body>
 </html>

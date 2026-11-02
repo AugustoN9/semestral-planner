@@ -220,6 +220,7 @@ body {
   justify-content: center;
   min-width: 25px;
   color: #111827;
+  flex-shrink: 0;
 }
 
 .appointment-title {
@@ -247,6 +248,7 @@ body {
   display: inline-block;
   background-color: rgba(255, 255, 255, 0.6);
   color: #111827;
+  flex-shrink: 0;
 }
 
 .appointment-details {
@@ -271,22 +273,59 @@ body {
   word-break: break-word;
 }
 
-/* Responsividade Mobile: ecrãs < 768px */
+/* ==========================================================================
+   LAYOUT RESPONSIVO MOBILE (< 768px)
+   Garante alinhamento compacto sem quebras verticais feias
+   ========================================================================== */
 @media (max-width: 767.98px) {
   .title-app {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
+
+  .month-card {
+    padding: 6px;
+  }
+
+  .cal-day {
+    height: 30px;
+    font-size: 0.78rem;
+  }
+
   .appointment-summary {
-    flex-wrap: wrap;
-    gap: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
+
+  .tag-badge {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    min-width: 22px;
+  }
+
   .appointment-title {
-    width: 100%;
-    order: 3;
-    padding-left: 0;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    min-width: 80px;
+    padding-left: 2px;
   }
+
   .status-badge {
+    font-size: 0.56rem;
+    width: 52px;
+    padding: 2px 0;
     margin-left: auto;
+  }
+
+  header .btn-sm {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.72rem;
   }
 }
 
@@ -363,7 +402,6 @@ body {
   border-radius: 2px !important;
 }
 
-/* Rodapé de Feriados no PDF */
 .pdf-single-page .month-holidays-list {
   margin-top: 2px !important;
   padding-top: 2px !important;
@@ -416,14 +454,12 @@ body {
   padding: 1px 0 !important;
 }
 
-/* Oculta detalhes vazios */
 .pdf-single-page
   .appointment-card:not(.has-custom-details)
   .appointment-details {
   display: none !important;
 }
 
-/* Expande apenas os cards com observações reais */
 .pdf-single-page .has-custom-details .appointment-details {
   display: block !important;
   height: auto !important;
