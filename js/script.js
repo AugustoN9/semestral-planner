@@ -3,7 +3,7 @@
 // ==========================================================================
 const SUPABASE_URL = "https://ocmjbfwvfznmyadfputs.supabase.co";
 // Publishable key do projeto Auguston9's Project
-const SUPABASE_ANON_KEY = "sb_publishable_OaH32KQANvAqMKR0ygVvUA_gYK0ZCI2"; // Substitua caso tenha a chave completa original
+const SUPABASE_ANON_KEY = "sb_publishable_OaH32KQANvAqMKR0ygVvUA_gYK0ZCI2";
 
 const supabaseClient =
   typeof supabase !== "undefined"
@@ -11,7 +11,7 @@ const supabaseClient =
     : null;
 
 // ==========================================================================
-// 2. Configuração Dinâmica do Semestre e Categorias
+// 2. Configurações Globais, Categorias, Cores e Ícones
 // ==========================================================================
 let configSemestre = JSON.parse(localStorage.getItem("config_semestre")) || {
   anoInicio: 2026,
@@ -72,7 +72,23 @@ const CORES_CATEGORIAS = {
   saude: "#d7f3e8",
   viagem: "#bae6fd",
   passeio: "#e9d5ff",
+  aniversario: "#fbcfe8",
+  festa: "#fef08a",
+  academia: "#fed7aa",
   geral: "#cbd5e1",
+};
+
+const ICONES_CATEGORIAS = {
+  ferias: "bi-sun-fill text-success",
+  recesso: "bi-tree-fill text-warning", // Fim de ano / Recesso
+  dissidio: "bi-cash-coin text-warning",
+  saude: "bi-heart-pulse-fill text-info",
+  viagem: "bi-airplane-fill text-primary",
+  passeio: "bi-bicycle text-purple", // Pessoa andando de bicicleta
+  aniversario: "bi-cake2-fill text-danger", // Bolo de aniversário
+  festa: "bi-cup-straw text-warning", // Garrafa/Brinde/Festa
+  academia: "bi-person-walking text-danger", // Pessoa correndo/atividade
+  geral: "bi-calendar-event text-secondary",
 };
 
 let agendamentos = [];
@@ -130,18 +146,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("btnExportarPDF")
     .addEventListener("click", exportarPDF);
-
-  const btnSincronizar = document.getElementById("btnSincronizar");
-  if (btnSincronizar) {
-    btnSincronizar.addEventListener("click", sincronizarComSupabase);
-  }
-
-  const btnImportar = document.getElementById("btnImportarJSON");
-  const inputImportar = document.getElementById("inputImportarJSON");
-  if (btnImportar && inputImportar) {
-    btnImportar.addEventListener("click", () => inputImportar.click());
-    inputImportar.addEventListener("change", importarBackupJSON);
-  }
 });
 
 // ==========================================================================
@@ -162,10 +166,7 @@ async function carregarConfiguracaoSupabase() {
       atualizarConfiguracaoSemestre(data.ano_inicio, data.mes_inicio, true);
     }
   } catch (err) {
-    console.warn(
-      "Aviso ao carregar configuração do Supabase, usando local:",
-      err,
-    );
+    console.warn("Aviso ao carregar configuração do Supabase:", err);
   }
 }
 
@@ -192,7 +193,9 @@ async function carregarAgendamentosSupabase() {
         dataInicio: item.data_inicio,
         dataFim: item.data_fim || "",
         horario: item.horario || "",
+        horarioFim: item.horario_fim || "",
         detalhes: item.detalhes || "",
+        concluido: Boolean(item.concluido),
       }));
       localStorage.setItem(
         "planejamento_2026_2027",
@@ -201,7 +204,6 @@ async function carregarAgendamentosSupabase() {
       return;
     }
 
-    // Se o Supabase estiver sem registos, tenta dados locais ou iniciais
     carregarAgendamentosLocaisFallback();
   } catch (err) {
     console.warn("Supabase inacessível, utilizando cache local:", err);
@@ -221,80 +223,7 @@ function carregarAgendamentosLocaisFallback() {
     }
   }
 
-  agendamentos = [
-    {
-      id: "ag-1",
-      titulo: "CONSULTA MÉDICA ENDOCRINOLOGIA",
-      categoria: "saude",
-      dataInicio: "2026-11-05",
-      dataFim: "",
-      horario: "07:30",
-      prioridade: "alta",
-      detalhes: "Consulta com Dr. Emanuel Eggers Turra CRM 29167",
-    },
-    {
-      id: "ag-2",
-      titulo: "RECESSO DE FIM DE ANO",
-      categoria: "recesso",
-      dataInicio: "2026-12-28",
-      dataFim: "2026-12-31",
-      horario: "",
-      prioridade: "none",
-      detalhes: "",
-    },
-    {
-      id: "ag-3",
-      titulo: "FÉRIAS FABIANA",
-      categoria: "ferias",
-      dataInicio: "2026-12-28",
-      dataFim: "2027-01-16",
-      horario: "",
-      prioridade: "none",
-      detalhes: "",
-    },
-    {
-      id: "ag-4",
-      titulo: "FÉRIAS AUGUSTO",
-      categoria: "ferias",
-      dataInicio: "2027-01-04",
-      dataFim: "2027-01-13",
-      horario: "",
-      prioridade: "none",
-      detalhes:
-        "Período de férias de Augusto. Lembrar de vender 10 dias de férias",
-    },
-  ];
-}
-
-async function sincronizarComSupabase() {
-  Swal.fire({
-    title: "Sincronizando...",
-    text: "A obter os dados mais recentes do Supabase.",
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-  });
-
-  try {
-    await carregarConfiguracaoSupabase();
-    await carregarAgendamentosSupabase();
-    await carregarFeriadosDosAnosDoSemestre();
-    renderizarMeses();
-    renderizarAgendamentos();
-
-    Swal.fire({
-      icon: "success",
-      title: "Sincronizado!",
-      text: "Todos os dados foram atualizados a partir da base de dados.",
-      timer: 1400,
-      showConfirmButton: false,
-    });
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Falha na Ligação",
-      text: "Não foi possível sincronizar com o Supabase.",
-    });
-  }
+  agendamentos = [];
 }
 
 // ==========================================================================
@@ -604,7 +533,7 @@ function alternarTodosCards() {
 }
 
 // ==========================================================================
-// 7. Renderização dos Agendamentos no Painel Lateral
+// 7. Renderização dos Agendamentos no Painel Lateral (To-Do & Ícones)
 // ==========================================================================
 function renderizarAgendamentos() {
   const container = document.getElementById("listaAgendamentos");
@@ -616,6 +545,10 @@ function renderizarAgendamentos() {
   const ordenacao =
     document.getElementById("filtroOrdenacao")?.value || "data-asc";
   const itensOrdenados = listaCompleta.sort((a, b) => {
+    if (ordenacao === "pendentes") {
+      if (a.concluido !== b.concluido) return a.concluido ? 1 : -1;
+      return (a.dataInicio || "").localeCompare(b.dataInicio || "");
+    }
     if (ordenacao === "data-asc")
       return (a.dataInicio || "").localeCompare(b.dataInicio || "");
     if (ordenacao === "data-desc")
@@ -636,7 +569,7 @@ function renderizarAgendamentos() {
 
   itensOrdenados.forEach((item) => {
     const card = document.createElement("div");
-    card.className = `appointment-card cat-theme-${item.categoria || "geral"}`;
+    card.className = `appointment-card cat-theme-${item.categoria || "geral"} ${item.concluido ? "is-completed" : ""}`;
     card.id = `card-${item.id}`;
 
     const temDetalhes = Boolean(
@@ -674,11 +607,17 @@ function renderizarAgendamentos() {
         <span class="tag-badge">${diferencaDias} ${diferencaDias === 1 ? "dia" : "dias"}</span>
       `;
     } else {
-      const horaStr = item.horario ? item.horario : "--";
+      let horarioFormatado = "--";
+      if (item.horario && item.horarioFim) {
+        horarioFormatado = `${item.horario} - ${item.horarioFim}`;
+      } else if (item.horario) {
+        horarioFormatado = item.horario;
+      }
+
       blocosDataHtml = `
         <span class="tag-badge">${diaIni}</span>
         <span class="tag-badge">${mesIni}</span>
-        <span class="tag-badge">${horaStr}</span>
+        <span class="tag-badge">${horarioFormatado}</span>
       `;
     }
 
@@ -693,6 +632,9 @@ function renderizarAgendamentos() {
       ? `<i class="bi bi-card-text text-secondary ms-1 small" title="Possui detalhamento"></i>`
       : "";
 
+    const classeIconeCat =
+      ICONES_CATEGORIAS[item.categoria] || "bi-calendar-event text-secondary";
+
     const botoesAcaoHtml = `
       <button class="btn btn-sm btn-outline-dark py-0 px-2" onclick="editarAgendamento('${item.id}')" title="Editar">
         <i class="bi bi-pencil-fill"></i>
@@ -703,16 +645,27 @@ function renderizarAgendamentos() {
     `;
 
     card.innerHTML = `
-      <div class="appointment-summary" onclick="alternarDetalhes('${item.id}')">
-        ${blocosDataHtml}
-        <span class="appointment-title" title="${item.titulo}">${item.titulo} ${iconeNota}</span>
-        <span class="status-badge">${labelStatus}</span>
+      <div class="appointment-summary d-flex align-items-center gap-2">
+        <input 
+          type="checkbox" 
+          class="form-check-input check-concluido ms-1" 
+          title="Marcar como concluído"
+          ${item.concluido ? "checked" : ""} 
+          onclick="event.stopPropagation(); alternarStatusConcluido('${item.id}')"
+        />
+        <div class="d-flex align-items-center flex-grow-1" onclick="alternarDetalhes('${item.id}')" style="cursor: pointer;">
+          ${blocosDataHtml}
+          <span class="appointment-title ms-2" title="${item.titulo}">
+            <i class="bi ${classeIconeCat} category-icon"></i>${item.titulo} ${iconeNota}
+          </span>
+          <span class="status-badge ms-auto">${labelStatus}</span>
+        </div>
       </div>
       <div class="appointment-details collapse" id="collapse-${item.id}">
         ${temDetalhes ? `<div class="details-label">DESCRIÇÃO</div><div class="details-text mb-2">${item.detalhes}</div>` : ""}
         <div class="small text-secondary mb-2">
           <strong>Período:</strong> ${formatarDataBr(item.dataInicio)} ${item.dataFim ? " até " + formatarDataBr(item.dataFim) : ""}
-          ${item.horario ? " às " + item.horario : ""}
+          ${item.horario ? " às " + item.horario : ""} ${item.horarioFim ? " até " + item.horarioFim : ""}
         </div>
         <div class="d-flex justify-content-end gap-1" data-html2canvas-ignore="true">
           ${botoesAcaoHtml}
@@ -741,6 +694,28 @@ window.alternarDetalhes = function (id) {
   }
 };
 
+window.alternarStatusConcluido = async function (id) {
+  const item = agendamentos.find((ev) => ev.id === id);
+  if (!item) return;
+
+  item.concluido = !item.concluido;
+  localStorage.setItem("planejamento_2026_2027", JSON.stringify(agendamentos));
+  renderizarAgendamentos();
+
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from("agendamentos")
+        .update({ concluido: item.concluido })
+        .eq("id", id);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error("Erro ao sincronizar status concluído no Supabase:", err);
+    }
+  }
+};
+
 function abrirModalParaData(dataIso) {
   limparFormulario();
   document.getElementById("dataInicio").value = dataIso;
@@ -752,6 +727,7 @@ function limparFormulario() {
   document.getElementById("agendamentoId").value = "";
   document.getElementById("categoria").value = "ferias";
   document.getElementById("prioridade").value = "none";
+  document.getElementById("horarioFim").value = "";
   document.getElementById("modalEventoLabel").textContent =
     "Cadastrar Agendamento";
 }
@@ -769,6 +745,7 @@ async function salvarAgendamento(e) {
   const dataInicio = document.getElementById("dataInicio").value;
   const dataFim = document.getElementById("dataFim").value;
   const horario = document.getElementById("horario").value;
+  const horarioFim = document.getElementById("horarioFim").value;
   const prioridade = document.getElementById("prioridade").value;
   const detalhes = document.getElementById("detalhes").value.trim();
 
@@ -781,6 +758,10 @@ async function salvarAgendamento(e) {
     return;
   }
 
+  const index = agendamentos.findIndex((ev) => ev.id === id);
+  const statusAtualConcluido =
+    index >= 0 ? agendamentos[index].concluido : false;
+
   const payloadObjeto = {
     id,
     titulo,
@@ -788,11 +769,12 @@ async function salvarAgendamento(e) {
     dataInicio,
     dataFim,
     horario,
+    horarioFim,
     prioridade,
     detalhes,
+    concluido: statusAtualConcluido,
   };
 
-  const index = agendamentos.findIndex((ev) => ev.id === id);
   if (index >= 0) {
     agendamentos[index] = payloadObjeto;
   } else {
@@ -816,7 +798,9 @@ async function salvarAgendamento(e) {
         data_inicio: dataInicio,
         data_fim: dataFim || null,
         horario: horario || null,
+        horario_fim: horarioFim || null,
         detalhes: detalhes || null,
+        concluido: statusAtualConcluido,
       };
 
       const { error } = await supabaseClient
@@ -829,7 +813,7 @@ async function salvarAgendamento(e) {
       Swal.fire({
         icon: "warning",
         title: "Salvo Localmente",
-        text: "O agendamento foi gravado no browser, mas ocorreu uma falha de sincronização com o Supabase.",
+        text: "O agendamento foi guardado no browser, mas ocorreu uma falha de rede com o Supabase.",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -856,6 +840,7 @@ window.editarAgendamento = function (id) {
   document.getElementById("dataInicio").value = item.dataInicio;
   document.getElementById("dataFim").value = item.dataFim || "";
   document.getElementById("horario").value = item.horario || "";
+  document.getElementById("horarioFim").value = item.horarioFim || "";
   document.getElementById("prioridade").value = item.prioridade || "none";
   document.getElementById("detalhes").value = item.detalhes || "";
 
@@ -916,35 +901,9 @@ function formatarDataBr(dataIso) {
 }
 
 // ==========================================================================
-// 9. Exportação de Backup e PDF
+// 9. Exportação Exclusiva em PDF (Folha Única A4 Paisagem)
 // ==========================================================================
-function baixarArquivoJSON() {
-  const dados = {
-    versao: "4.0",
-    exportadoEm: new Date().toISOString(),
-    configSemestre: configSemestre,
-    totalAgendamentos: agendamentos.length,
-    agendamentos: agendamentos,
-  };
-
-  const jsonString = JSON.stringify(dados, null, 2);
-  const blob = new Blob([jsonString], {
-    type: "application/json;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `backup_planejamento_${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
 function exportarPDF() {
-  baixarArquivoJSON();
-
   const elemento = document.getElementById("exportArea");
   elemento.classList.add("pdf-single-page");
 
@@ -980,84 +939,4 @@ function exportarPDF() {
         elemento.classList.remove("pdf-single-page");
       });
   }, 120);
-}
-
-function importarBackupJSON(event) {
-  const arquivo = event.target.files[0];
-  if (!arquivo) return;
-
-  const leitor = new FileReader();
-  leitor.onload = function (e) {
-    try {
-      const conteudo = JSON.parse(e.target.result);
-      const listaImportada = Array.isArray(conteudo)
-        ? conteudo
-        : conteudo.agendamentos;
-
-      if (!Array.isArray(listaImportada)) {
-        throw new Error("Estrutura do ficheiro JSON inválida.");
-      }
-
-      Swal.fire({
-        title: "Importar e Sincronizar?",
-        text: `Deseja importar ${listaImportada.length} agendamentos e persistir no Supabase?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#ffc107",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Sim, importar",
-        cancelButtonText: "Cancelar",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          agendamentos = listaImportada;
-          if (conteudo.configSemestre) {
-            atualizarConfiguracaoSemestre(
-              conteudo.configSemestre.anoInicio,
-              conteudo.configSemestre.mesInicio,
-              true,
-            );
-          }
-          localStorage.setItem(
-            "planejamento_2026_2027",
-            JSON.stringify(agendamentos),
-          );
-
-          if (supabaseClient) {
-            const payloadSupabase = agendamentos.map((item) => ({
-              id: item.id,
-              titulo: item.titulo,
-              categoria: item.categoria || "geral",
-              prioridade: item.prioridade || "none",
-              data_inicio: item.dataInicio,
-              data_fim: item.dataFim || null,
-              horario: item.horario || null,
-              detalhes: item.detalhes || null,
-            }));
-            await supabaseClient.from("agendamentos").upsert(payloadSupabase);
-          }
-
-          renderizarMeses();
-          renderizarAgendamentos();
-
-          Swal.fire({
-            icon: "success",
-            title: "Importado com Sucesso!",
-            text: "Os agendamentos foram restaurados e sincronizados no Supabase.",
-            timer: 1600,
-            showConfirmButton: false,
-          });
-        }
-      });
-    } catch (erro) {
-      Swal.fire({
-        icon: "error",
-        title: "Erro na Leitura",
-        text: "Certifique-se de que é um ficheiro JSON de backup válido.",
-      });
-      console.error(erro);
-    } finally {
-      event.target.value = "";
-    }
-  };
-  leitor.readAsText(arquivo);
 }

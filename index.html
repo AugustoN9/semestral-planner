@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css?v=4.1" />
+    <link rel="stylesheet" href="css/style.css?v=4.3" />
   </head>
   <body class="bg-light">
     <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
@@ -38,7 +38,8 @@
         <div>
           <h2 class="title-app mb-0" id="tituloApp">PLANEJAMENTO SEMESTRAL</h2>
           <span class="text-muted small"
-            >Férias, Folgas, Recessos, Viagens, Passeios e Feriados</span
+            >Férias, Folgas, Recessos, Viagens, Passeios, Festas e
+            Feriados</span
           >
         </div>
         <div
@@ -123,6 +124,7 @@
                 >
                   <option value="data-asc">Data (crescente)</option>
                   <option value="data-desc">Data (decrescente)</option>
+                  <option value="pendentes">Pendentes Primeiro</option>
                   <option value="categoria">Categoria</option>
                   <option value="prioridade">Prioridade</option>
                 </select>
@@ -255,7 +257,7 @@
                   type="text"
                   class="form-control"
                   id="titulo"
-                  placeholder="Ex: FÉRIAS FABIANA, VIAGEM SÃO PAULO..."
+                  placeholder="Ex: FÉRIAS FABIANA, ANIVERSÁRIO BRENDA, TREINO..."
                   required
                 />
               </div>
@@ -267,13 +269,20 @@
                   >
                   <select id="categoria" class="form-select" required>
                     <option value="ferias">Férias (Verde)</option>
-                    <option value="recesso">Recesso (Amarelo)</option>
+                    <option value="recesso">
+                      Recesso / Fim de Ano (Amarelo)
+                    </option>
                     <option value="dissidio">Dissídio (Laranja)</option>
                     <option value="saude">
                       Saúde / Consulta (Ciano Suave)
                     </option>
                     <option value="viagem">Viagem (Azul Suave)</option>
                     <option value="passeio">Passeio (Lavanda/Lilás)</option>
+                    <option value="aniversario">
+                      Aniversário (Rosa Suave)
+                    </option>
+                    <option value="festa">Festa (Dourado/Champanhe)</option>
+                    <option value="academia">Academia / Treino (Coral)</option>
                     <option value="geral">Geral / Outros (Cinza)</option>
                   </select>
                 </div>
@@ -310,11 +319,20 @@
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label for="horario" class="form-label fw-bold small"
-                  >Horário (se houver)</label
-                >
-                <input type="time" class="form-control" id="horario" />
+              <!-- Horário Inicial e Término -->
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <label for="horario" class="form-label fw-bold small"
+                    >Horário Inicial</label
+                  >
+                  <input type="time" class="form-control" id="horario" />
+                </div>
+                <div class="col-md-6">
+                  <label for="horarioFim" class="form-label fw-bold small"
+                    >Horário Término</label
+                  >
+                  <input type="time" class="form-control" id="horarioFim" />
+                </div>
               </div>
 
               <div class="mb-3">
@@ -355,6 +373,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Lógica Principal -->
-    <script src="js/script.js?v=4.1"></script>
+    <script src="js/script.js?v=4.3"></script>
   </body>
 </html>

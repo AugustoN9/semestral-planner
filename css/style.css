@@ -15,6 +15,12 @@
   --cat-viagem-border: #38bdf8;
   --cat-passeio-bg: #e9d5ff;
   --cat-passeio-border: #c084fc;
+  --cat-aniversario-bg: #fbcfe8;
+  --cat-aniversario-border: #f472b6;
+  --cat-festa-bg: #fef08a;
+  --cat-festa-border: #eab308;
+  --cat-academia-bg: #fed7aa;
+  --cat-academia-border: #f97316;
   --cat-geral-bg: #e2e8f0;
   --cat-geral-border: #cbd5e1;
 }
@@ -185,6 +191,18 @@ body {
   background-color: var(--cat-passeio-bg);
   border-color: var(--cat-passeio-border);
 }
+.cat-theme-aniversario {
+  background-color: var(--cat-aniversario-bg);
+  border-color: var(--cat-aniversario-border);
+}
+.cat-theme-festa {
+  background-color: var(--cat-festa-bg);
+  border-color: var(--cat-festa-border);
+}
+.cat-theme-academia {
+  background-color: var(--cat-academia-bg);
+  border-color: var(--cat-academia-border);
+}
 .cat-theme-geral {
   background-color: var(--cat-geral-bg);
   border-color: var(--cat-geral-border);
@@ -194,6 +212,32 @@ body {
   outline: 3px solid #0b5e82 !important;
   transform: scale(1.02);
   z-index: 5;
+}
+
+/* Estado Concluído (To-Do List) */
+.appointment-card.is-completed {
+  opacity: 0.58;
+  filter: grayscale(40%);
+  background-color: #f1f5f9 !important;
+}
+
+.appointment-card.is-completed .appointment-title {
+  text-decoration: line-through;
+  color: #64748b;
+}
+
+/* Checkbox de Conclusão */
+.check-concluido {
+  cursor: pointer;
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: #0b5e82;
+  flex-shrink: 0;
+}
+
+.category-icon {
+  font-size: 0.92rem;
+  margin-right: 5px;
 }
 
 /* Estrutura Interna dos Agendamentos */
@@ -275,7 +319,6 @@ body {
 
 /* ==========================================================================
    LAYOUT RESPONSIVO MOBILE (< 768px)
-   Garante alinhamento compacto sem quebras verticais feias
    ========================================================================== */
 @media (max-width: 767.98px) {
   .title-app {
@@ -330,8 +373,7 @@ body {
 }
 
 /* ==========================================================================
-   ESTILOS ULTRA-COMPACTOS PARA FOLHA ÚNICA ESTRITA EM A4 PAISAGEM (297mm x 210mm)
-   Meses 54% e Agendamentos 46% com Feriados Compactos nos Meses
+   ESTILOS ULTRA-COMPACTOS PARA FOLHA ÚNICA EM A4 PAISAGEM
    ========================================================================== */
 .pdf-single-page {
   width: 1110px !important;
@@ -436,6 +478,10 @@ body {
 .pdf-single-page .appointment-summary {
   padding: 2px 4px !important;
   gap: 2.5px !important;
+}
+
+.pdf-single-page .check-concluido {
+  display: none !important;
 }
 
 .pdf-single-page .tag-badge {
