@@ -3,8 +3,14 @@
   --calendar-cell-bg: #e5ebf0;
   --calendar-cell-border: #bcc8d2;
 
+  /* 3 Cores bem distintas para Férias */
   --cat-ferias-bg: #9ce69e;
   --cat-ferias-border: #62c766;
+  --cat-ferias-2-bg: #67e8f9;
+  --cat-ferias-2-border: #06b6d4;
+  --cat-ferias-3-bg: #fda4af;
+  --cat-ferias-3-border: #f43f5e;
+
   --cat-recesso-bg: #ffcf29;
   --cat-recesso-border: #d49f05;
   --cat-dissidio-bg: #ffaf24;
@@ -171,6 +177,14 @@ body {
   background-color: var(--cat-ferias-bg);
   border-color: var(--cat-ferias-border);
 }
+.cat-theme-ferias_2 {
+  background-color: var(--cat-ferias-2-bg);
+  border-color: var(--cat-ferias-2-border);
+}
+.cat-theme-ferias_3 {
+  background-color: var(--cat-ferias-3-bg);
+  border-color: var(--cat-ferias-3-border);
+}
 .cat-theme-recesso {
   background-color: var(--cat-recesso-bg);
   border-color: var(--cat-recesso-border);
@@ -206,6 +220,13 @@ body {
 .cat-theme-geral {
   background-color: var(--cat-geral-bg);
   border-color: var(--cat-geral-border);
+}
+
+/* Destaque visual da bolinha de cor selecionada no modal */
+#grupoCorFerias .btn-check:checked + label {
+  outline: 2px solid #0b5e82;
+  outline-offset: 2px;
+  transform: scale(1.15);
 }
 
 .appointment-card.highlight-selected {

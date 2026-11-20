@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Estilos da Aplicação -->
-    <link rel="stylesheet" href="css/style.css?v=4.3" />
+    <link rel="stylesheet" href="css/style.css?v=4.5" />
   </head>
   <body class="bg-light">
     <div class="container-fluid py-3 px-2 px-md-4" id="exportArea">
@@ -89,7 +89,7 @@
           </div>
         </section>
 
-        <!-- Painel de Agendamentos -->
+        <!-- Painel de Agendamentos e Histórico -->
         <aside class="col-12 col-xl-5 col-lg-5" id="colunaAgendamentos">
           <div
             class="card shadow-sm border-0 schedule-sidebar sticky-top"
@@ -98,7 +98,45 @@
             <div
               class="card-header bg-white border-0 pt-2 pb-2 d-flex flex-wrap justify-content-between align-items-center gap-2"
             >
-              <h5 class="title-panel mb-0">AGENDAMENTOS</h5>
+              <div class="d-flex align-items-center gap-2">
+                <h5 class="title-panel mb-0" id="tituloPainelDireito">
+                  AGENDAMENTOS
+                </h5>
+
+                <!-- Alternância entre Ativos e Histórico -->
+                <div
+                  class="btn-group btn-group-sm"
+                  role="group"
+                  aria-label="Filtro de visualização"
+                  data-html2canvas-ignore="true"
+                >
+                  <button
+                    type="button"
+                    id="btnAbaAtivos"
+                    class="btn btn-dark fw-semibold px-2 py-0"
+                    style="font-size: 0.72rem"
+                  >
+                    Ativos
+                    <span
+                      class="badge bg-warning text-dark ms-1"
+                      id="badgeQtdAtivos"
+                      >0</span
+                    >
+                  </button>
+                  <button
+                    type="button"
+                    id="btnAbaHistorico"
+                    class="btn btn-outline-secondary fw-semibold px-2 py-0"
+                    style="font-size: 0.72rem"
+                  >
+                    <i class="bi bi-clock-history me-1"></i>Histórico
+                    <span class="badge bg-secondary ms-1" id="badgeQtdHistorico"
+                      >0</span
+                    >
+                  </button>
+                </div>
+              </div>
+
               <div
                 class="d-flex flex-wrap align-items-center gap-2"
                 data-html2canvas-ignore="true"
@@ -124,7 +162,6 @@
                 >
                   <option value="data-asc">Data (crescente)</option>
                   <option value="data-desc">Data (decrescente)</option>
-                  <option value="pendentes">Pendentes Primeiro</option>
                   <option value="categoria">Categoria</option>
                   <option value="prioridade">Prioridade</option>
                 </select>
@@ -268,7 +305,7 @@
                     >Categoria / Tipo *</label
                   >
                   <select id="categoria" class="form-select" required>
-                    <option value="ferias">Férias (Verde)</option>
+                    <option value="ferias">Férias (3 Cores)</option>
                     <option value="recesso">
                       Recesso / Fim de Ano (Amarelo)
                     </option>
@@ -285,6 +322,72 @@
                     <option value="academia">Academia / Treino (Coral)</option>
                     <option value="geral">Geral / Outros (Cinza)</option>
                   </select>
+
+                  <!-- Seletor de 3 cores bem distintas exclusivo para Férias -->
+                  <div
+                    id="grupoCorFerias"
+                    class="mt-2 p-2 bg-light border rounded d-flex align-items-center justify-content-between"
+                  >
+                    <span class="small fw-semibold text-secondary"
+                      >Cor das Férias:</span
+                    >
+                    <div class="d-flex gap-2">
+                      <input
+                        type="radio"
+                        class="btn-check"
+                        name="corFerias"
+                        id="corFerias1"
+                        value="ferias"
+                        checked
+                      />
+                      <label
+                        class="btn btn-sm rounded-circle p-0 border border-dark"
+                        for="corFerias1"
+                        style="
+                          width: 24px;
+                          height: 24px;
+                          background-color: #9ce69e;
+                        "
+                        title="Verde Esmeralda"
+                      ></label>
+
+                      <input
+                        type="radio"
+                        class="btn-check"
+                        name="corFerias"
+                        id="corFerias2"
+                        value="ferias_2"
+                      />
+                      <label
+                        class="btn btn-sm rounded-circle p-0 border border-dark"
+                        for="corFerias2"
+                        style="
+                          width: 24px;
+                          height: 24px;
+                          background-color: #67e8f9;
+                        "
+                        title="Turquesa / Azul Piscina"
+                      ></label>
+
+                      <input
+                        type="radio"
+                        class="btn-check"
+                        name="corFerias"
+                        id="corFerias3"
+                        value="ferias_3"
+                      />
+                      <label
+                        class="btn btn-sm rounded-circle p-0 border border-dark"
+                        for="corFerias3"
+                        style="
+                          width: 24px;
+                          height: 24px;
+                          background-color: #fda4af;
+                        "
+                        title="Coral / Salmão"
+                      ></label>
+                    </div>
+                  </div>
                 </div>
                 <div class="col-md-6">
                   <label for="prioridade" class="form-label fw-bold small"
@@ -373,6 +476,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Lógica Principal -->
-    <script src="js/script.js?v=4.3"></script>
+    <script src="js/script.js?v=4.5"></script>
   </body>
 </html>

@@ -66,7 +66,9 @@ function gerarConfiguracaoSemestre(anoInicio, mesInicio, totalMeses = 6) {
 }
 
 const CORES_CATEGORIAS = {
-  ferias: "#9ce69e",
+  ferias: "#9ce69e", // Verde Esmeralda
+  ferias_2: "#67e8f9", // Turquesa / Azul Piscina
+  ferias_3: "#fda4af", // Coral / Salmão
   recesso: "#ffcf29",
   dissidio: "#ffaf24",
   saude: "#d7f3e8",
@@ -80,6 +82,8 @@ const CORES_CATEGORIAS = {
 
 const ICONES_CATEGORIAS = {
   ferias: "bi-sun-fill text-success",
+  ferias_2: "bi-sun-fill text-info",
+  ferias_3: "bi-sun-fill text-danger",
   recesso: "bi-tree-fill text-warning", // Fim de ano / Recesso
   dissidio: "bi-cash-coin text-warning",
   saude: "bi-heart-pulse-fill text-info",
@@ -96,6 +100,7 @@ let feriadosNacionais = {};
 let modalEventoInstance = null;
 let modalConfigInstance = null;
 let cardsColapsados = true;
+let abaAtual = "ativos"; // "ativos" | "historico"
 
 // ==========================================================================
 // 3. Inicialização Assíncrona da Aplicação
@@ -127,7 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderizarAgendamentos();
   }
 
-  // Eventos de formulários e botões
+  // Eventos de formulários, abas e botões
   document
     .getElementById("formAgendamento")
     .addEventListener("submit", salvarAgendamento);
@@ -146,10 +151,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("btnExportarPDF")
     .addEventListener("click", exportarPDF);
+  document
+    .getElementById("categoria")
+    .addEventListener("change", alternarSeletorCorFerias);
+
+  document
+    .getElementById("btnAbaAtivos")
+    .addEventListener("click", () => alternarAba("ativos"));
+  document
+    .getElementById("btnAbaHistorico")
+    .addEventListener("click", () => alternarAba("historico"));
 });
 
 // ==========================================================================
-// 4. Operações Remotas no Supabase (Leitura e Fallback)
+// 4. Controle de Abas (Ativos vs Histórico) e Seletor de Cor de Férias
+// ==========================================================================
+function alternarSeletorCorFerias() {
+  const cat = document.getElementById("categoria").value;
+  const grupoCor = document.getElementById("grupoCorFerias");
+  if (grupoCor) {
+    grupoCor.classList.toggle("d-none", cat !== "ferias");
+  }
+}
+
+function alternarAba(novaAba) {
+  abaAtual = novaAba;
+
+  const btnAtivos = document.getElementById("btnAbaAtivos");
+  const btnHistorico = document.getElementById("btnAbaHistorico");
+  const tituloPainel = document.getElementById("tituloPainelDireito");
+
+  if (abaAtual === "ativos") {
+    btnAtivos.className = "btn btn-dark fw-semibold px-2 py-0";
+    btnHistorico.className = "btn btn-outline-secondary fw-semibold px-2 py-0";
+    if (tituloPainel) tituloPainel.textContent = "AGENDAMENTOS";
+  } else {
+    btnAtivos.className = "btn btn-outline-secondary fw-semibold px-2 py-0";
+    btnHistorico.className = "btn btn-dark fw-semibold px-2 py-0";
+    if (tituloPainel) tituloPainel.textContent = "HISTÓRICO";
+  }
+
+  renderizarAgendamentos();
+}
+
+// ==========================================================================
+// 5. Operações Remotas no Supabase (Leitura e Fallback)
 // ==========================================================================
 
 async function carregarConfiguracaoSupabase() {
@@ -227,7 +273,7 @@ function carregarAgendamentosLocaisFallback() {
 }
 
 // ==========================================================================
-// 5. Configuração de Semestre e Feriados Dinâmicos
+// 6. Configuração de Semestre e Feriados Dinâmicos
 // ==========================================================================
 
 function atualizarConfiguracaoSemestre(anoInicio, mesInicio, persistir = true) {
@@ -349,7 +395,7 @@ async function carregarFeriadosDosAnosDoSemestre() {
 }
 
 // ==========================================================================
-// 6. Renderização dos Meses com Feriados no Rodapé
+// 7. Renderização dos Meses e Interação com Dias do Calendário
 // ==========================================================================
 function renderizarMeses() {
   const container = document.getElementById("calendariosContainer");
@@ -479,27 +525,63 @@ function tratarCliqueNoDia(dataIso) {
   const eventosNoDia = obterEventosDoDia(dataIso);
 
   if (eventosNoDia.length > 0) {
-    eventosNoDia.forEach((evento, index) => {
-      const cardEl = document.getElementById(`card-${evento.id}`);
-      if (cardEl) {
-        const collapseEl = document.getElementById(`collapse-${evento.id}`);
-        if (collapseEl) {
-          bootstrap.Collapse.getOrCreateInstance(collapseEl).show();
-        }
+    const eventosConcluidos = eventosNoDia.filter((ev) => ev.concluido);
 
-        if (index === 0) {
-          cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+    if (eventosConcluidos.length > 0) {
+      const nomes = eventosConcluidos.map((e) => `"${e.titulo}"`).join(", ");
 
-        cardEl.classList.add("highlight-selected");
-        setTimeout(() => {
-          cardEl.classList.remove("highlight-selected");
-        }, 2000);
-      }
-    });
+      Swal.fire({
+        title: "Reabrir Agendamento?",
+        text: `O evento ${nomes} está marcado como concluído. Deseja desmarcar e retorná-lo para a lista de Ativos?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#0b5e82",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sim, retornar aos Ativos",
+        cancelButtonText: "Apenas visualizar no Histórico",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          for (const ev of eventosConcluidos) {
+            await alternarStatusConcluido(ev.id);
+          }
+          alternarAba("ativos");
+          destacarCardsNoPainel(eventosConcluidos);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          alternarAba("historico");
+          destacarCardsNoPainel(eventosConcluidos);
+        }
+      });
+      return;
+    }
+
+    if (abaAtual !== "ativos") {
+      alternarAba("ativos");
+    }
+    destacarCardsNoPainel(eventosNoDia);
   } else {
     abrirModalParaData(dataIso);
   }
+}
+
+function destacarCardsNoPainel(listaEventos) {
+  listaEventos.forEach((evento, index) => {
+    const cardEl = document.getElementById(`card-${evento.id}`);
+    if (cardEl) {
+      const collapseEl = document.getElementById(`collapse-${evento.id}`);
+      if (collapseEl) {
+        bootstrap.Collapse.getOrCreateInstance(collapseEl).show();
+      }
+
+      if (index === 0) {
+        cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      cardEl.classList.add("highlight-selected");
+      setTimeout(() => {
+        cardEl.classList.remove("highlight-selected");
+      }, 2000);
+    }
+  });
 }
 
 function obterEventosDoDia(dataIso) {
@@ -533,7 +615,7 @@ function alternarTodosCards() {
 }
 
 // ==========================================================================
-// 7. Renderização dos Agendamentos no Painel Lateral (To-Do & Ícones)
+// 8. Renderização dos Agendamentos (Ativos = Não Marcados | Histórico = Marcados)
 // ==========================================================================
 function renderizarAgendamentos() {
   const container = document.getElementById("listaAgendamentos");
@@ -542,13 +624,19 @@ function renderizarAgendamentos() {
 
   const listaCompleta = Array.isArray(agendamentos) ? [...agendamentos] : [];
 
+  const itensAtivos = listaCompleta.filter((item) => !item.concluido);
+  const itensHistorico = listaCompleta.filter((item) => item.concluido);
+
+  const badgeAtivos = document.getElementById("badgeQtdAtivos");
+  const badgeHistorico = document.getElementById("badgeQtdHistorico");
+  if (badgeAtivos) badgeAtivos.textContent = itensAtivos.length;
+  if (badgeHistorico) badgeHistorico.textContent = itensHistorico.length;
+
+  const listaFiltrada = abaAtual === "ativos" ? itensAtivos : itensHistorico;
+
   const ordenacao =
     document.getElementById("filtroOrdenacao")?.value || "data-asc";
-  const itensOrdenados = listaCompleta.sort((a, b) => {
-    if (ordenacao === "pendentes") {
-      if (a.concluido !== b.concluido) return a.concluido ? 1 : -1;
-      return (a.dataInicio || "").localeCompare(b.dataInicio || "");
-    }
+  const itensOrdenados = listaFiltrada.sort((a, b) => {
     if (ordenacao === "data-asc")
       return (a.dataInicio || "").localeCompare(b.dataInicio || "");
     if (ordenacao === "data-desc")
@@ -563,7 +651,11 @@ function renderizarAgendamentos() {
   });
 
   if (itensOrdenados.length === 0) {
-    container.innerHTML = `<div class="text-center text-muted py-3 small">Nenhum agendamento cadastrado.</div>`;
+    const msgVazia =
+      abaAtual === "ativos"
+        ? "Nenhum agendamento pendente."
+        : "Nenhum agendamento concluído no histórico.";
+    container.innerHTML = `<div class="text-center text-muted py-4 small">${msgVazia}</div>`;
     return;
   }
 
@@ -621,12 +713,14 @@ function renderizarAgendamentos() {
       `;
     }
 
+    const nomeCategoriaExibicao = (item.categoria || "geral").startsWith("ferias")
+      ? "FERIAS"
+      : (item.categoria || "geral").toUpperCase();
+
     const labelStatus =
       item.prioridade && item.prioridade !== "none"
         ? item.prioridade.toUpperCase()
-        : item.categoria
-          ? item.categoria.toUpperCase()
-          : "GERAL";
+        : nomeCategoriaExibicao;
 
     const iconeNota = temDetalhes
       ? `<i class="bi bi-card-text text-secondary ms-1 small" title="Possui detalhamento"></i>`
@@ -649,11 +743,11 @@ function renderizarAgendamentos() {
         <input 
           type="checkbox" 
           class="form-check-input check-concluido ms-1" 
-          title="Marcar como concluído"
+          title="${item.concluido ? "Desmarcar conclusão (mover para Ativos)" : "Marcar como concluído (mover para Histórico)"}"
           ${item.concluido ? "checked" : ""} 
           onclick="event.stopPropagation(); alternarStatusConcluido('${item.id}')"
         />
-        <div class="d-flex align-items-center flex-grow-1" onclick="alternarDetalhes('${item.id}')" style="cursor: pointer;">
+        <div class="d-flex align-items-center flex-grow-1" onclick="alternarDetalhes('${item.id}')" style="cursor: pointer; min-width: 0;">
           ${blocosDataHtml}
           <span class="appointment-title ms-2" title="${item.titulo}">
             <i class="bi ${classeIconeCat} category-icon"></i>${item.titulo} ${iconeNota}
@@ -726,6 +820,8 @@ function limparFormulario() {
   document.getElementById("formAgendamento").reset();
   document.getElementById("agendamentoId").value = "";
   document.getElementById("categoria").value = "ferias";
+  document.getElementById("corFerias1").checked = true;
+  alternarSeletorCorFerias();
   document.getElementById("prioridade").value = "none";
   document.getElementById("horarioFim").value = "";
   document.getElementById("modalEventoLabel").textContent =
@@ -733,7 +829,7 @@ function limparFormulario() {
 }
 
 // ==========================================================================
-// 8. Gravação, Edição e Eliminação no Supabase
+// 9. Gravação, Edição e Eliminação no Supabase
 // ==========================================================================
 async function salvarAgendamento(e) {
   e.preventDefault();
@@ -741,7 +837,17 @@ async function salvarAgendamento(e) {
   const id =
     document.getElementById("agendamentoId").value || "ag-" + Date.now();
   const titulo = document.getElementById("titulo").value.trim();
-  const categoria = document.getElementById("categoria").value;
+
+  let categoria = document.getElementById("categoria").value;
+  if (categoria === "ferias") {
+    const corSelecionada = document.querySelector(
+      'input[name="corFerias"]:checked',
+    );
+    if (corSelecionada) {
+      categoria = corSelecionada.value; // "ferias", "ferias_2" ou "ferias_3"
+    }
+  }
+
   const dataInicio = document.getElementById("dataInicio").value;
   const dataFim = document.getElementById("dataFim").value;
   const horario = document.getElementById("horario").value;
@@ -787,7 +893,6 @@ async function salvarAgendamento(e) {
   renderizarMeses();
   renderizarAgendamentos();
 
-  // Envia para o Supabase
   if (supabaseClient) {
     try {
       const payloadSupabase = {
@@ -813,7 +918,7 @@ async function salvarAgendamento(e) {
       Swal.fire({
         icon: "warning",
         title: "Salvo Localmente",
-        text: "O agendamento foi guardado no browser, mas ocorreu uma falha de rede com o Supabase.",
+        text: "O agendamento foi guardado no navegador, mas ocorreu uma falha de rede com o Supabase.",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -836,7 +941,19 @@ window.editarAgendamento = function (id) {
 
   document.getElementById("agendamentoId").value = item.id;
   document.getElementById("titulo").value = item.titulo;
-  document.getElementById("categoria").value = item.categoria || "geral";
+
+  const catReal = item.categoria || "geral";
+  if (catReal.startsWith("ferias")) {
+    document.getElementById("categoria").value = "ferias";
+    const radioCor = document.querySelector(
+      `input[name="corFerias"][value="${catReal}"]`,
+    );
+    if (radioCor) radioCor.checked = true;
+  } else {
+    document.getElementById("categoria").value = catReal;
+  }
+  alternarSeletorCorFerias();
+
   document.getElementById("dataInicio").value = item.dataInicio;
   document.getElementById("dataFim").value = item.dataFim || "";
   document.getElementById("horario").value = item.horario || "";
@@ -901,7 +1018,7 @@ function formatarDataBr(dataIso) {
 }
 
 // ==========================================================================
-// 9. Exportação Exclusiva em PDF (Folha Única A4 Paisagem)
+// 10. Exportação Exclusiva em PDF (Folha Única A4 Paisagem)
 // ==========================================================================
 function exportarPDF() {
   const elemento = document.getElementById("exportArea");
